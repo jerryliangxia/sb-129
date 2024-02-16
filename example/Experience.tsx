@@ -64,10 +64,10 @@ export default function Experience() {
             followLight
             springK={2}
             dampingC={0.2}
-            autoBalanceSpringK={1.2}
-            autoBalanceDampingC={0.04}
-            autoBalanceSpringOnY={0.7}
-            autoBalanceDampingOnY={0.05}
+            // autoBalanceSpringK={1.2}
+            // autoBalanceDampingC={0.04}
+            // autoBalanceSpringOnY={0.7}
+            // autoBalanceDampingOnY={0.05}
             disableFollowCam={disableFollowCam}
           >
             {/* Replace your model here */}
@@ -98,7 +98,7 @@ export default function Experience() {
 
         {/* Shoting cubes */}
         <ShotCube />
-      </Physics >
+      </Physics>
     </>
   );
 }
