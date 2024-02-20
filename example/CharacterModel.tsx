@@ -40,10 +40,95 @@ export default function CharacterModel(props: CharacterModelProps) {
     action4: "Shoot and Run",
   };
 
+  const applyBoneFiltering = (
+    action: THREE.AnimationAction,
+    {
+      filterBones,
+      excludeBones,
+    }: { filterBones?: string[]; excludeBones?: string[] }
+  ) => {
+    const filteredBindings: THREE.PropertyMixer[] = [];
+    const filteredInterpolants: THREE.Interpolant[] = [];
+    const bindings =
+      ((action as any)._propertyBindings as THREE.PropertyMixer[]) || [];
+    const interpolants =
+      ((action as any)._interpolants as THREE.Interpolant[]) || [];
+
+    if (filterBones) {
+      bindings.forEach((propertyMixer, index) => {
+        if (
+          propertyMixer.binding &&
+          propertyMixer.binding.node &&
+          filterBones.includes(propertyMixer.binding.node.name)
+        ) {
+          filteredBindings.push(propertyMixer);
+          filteredInterpolants.push(interpolants[index]);
+        }
+      });
+    } else if (excludeBones) {
+      bindings.forEach((propertyMixer, index) => {
+        if (
+          !(
+            propertyMixer.binding &&
+            propertyMixer.binding.node &&
+            excludeBones.includes(propertyMixer.binding.node.name)
+          )
+        ) {
+          filteredBindings.push(propertyMixer);
+          filteredInterpolants.push(interpolants[index]);
+        }
+      });
+    }
+
+    (action as any)._propertyBindings = filteredBindings;
+    (action as any)._interpolants = filteredInterpolants;
+  };
+
   useEffect(() => {
     // Initialize animation set
     initializeAnimationSet(animationSet);
-  }, []);
+
+    // Example usage of applyBoneFiltering
+    if (actions["Shoot and Run"]) {
+      applyBoneFiltering(actions["Shoot and Run"], {
+        excludeBones: [
+          "LegL",
+          "CalfL",
+          "FrontFootL",
+          "FrontFootHeelL",
+          "BackFootL",
+          "BackFootHeelL",
+          "LegR",
+          "CalfR",
+          "FrontFootR",
+          "FrontFootHeelR",
+          "BackFootR",
+          "BackFootHeelR",
+          "Bone",
+        ],
+      });
+    }
+
+    if (actions["Run2"]) {
+      applyBoneFiltering(actions["Run2"], {
+        filterBones: [
+          "LegL",
+          "CalfL",
+          "FrontFootL",
+          "FrontFootHeelL",
+          "BackFootL",
+          "BackFootHeelL",
+          "LegR",
+          "CalfR",
+          "FrontFootR",
+          "FrontFootHeelR",
+          "BackFootR",
+          "BackFootHeelR",
+          "Bone",
+        ],
+      });
+    }
+  }, [actions, initializeAnimationSet]);
 
   useFrame(() => {
     if (curAnimation === animationSet.action4) {
@@ -64,7 +149,6 @@ export default function CharacterModel(props: CharacterModelProps) {
       //     rightHandRef.current.position
       //   );
       // }
-      console.log("Hello");
     }
   });
 
@@ -73,17 +157,30 @@ export default function CharacterModel(props: CharacterModelProps) {
     const action = actions[curAnimation ? curAnimation : animationSet.jumpIdle];
 
     // For jump and jump land animation, only play once and clamp when finish
+    let action1 = actions[curAnimation];
+    let action2 = actions["Run2"];
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
       curAnimation === animationSet.action1 ||
       curAnimation === animationSet.action2 ||
-      curAnimation === animationSet.action3 ||
-      curAnimation === animationSet.action4
+      curAnimation === animationSet.action3
     ) {
       if (action) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
+      }
+    } else if (curAnimation === animationSet.action4) {
+      if (action && actions[curAnimation]) {
+        // Reset and play the 'action4' animation with specific settings
+        // THREE.AnimationUtils.makeClipAdditive(animations[curAnimation]);
+        action1?.play();
+        action2?.play();
+        // action.blendMode = THREE.NormalAnimationBlendMode;
+        if (action2) action1?.syncWith(action2);
+
+        action1?.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
+        action2?.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
       }
     } else {
       action?.reset().fadeIn(0.2).play();
@@ -93,22 +190,29 @@ export default function CharacterModel(props: CharacterModelProps) {
     (action as any)._mixer.addEventListener("finished", () => resetAnimation());
 
     return () => {
-      // Fade out previous action
-      action?.fadeOut(0.2);
-
-      // Clean up mixer listener, and empty the _listeners array
-      (action as any)._mixer.removeEventListener("finished", () =>
-        resetAnimation()
-      );
-      (action as any)._mixer._listeners = [];
-
       // Move hand collider back to initial position after action
       if (curAnimation === animationSet.action4) {
-        // if (rightHandColliderRef.current) {
-        //   rightHandColliderRef.current.setTranslationWrtParent(
-        //     vec3({ x: 0, y: 0, z: 0 })
-        //   );
-        // }
+        action1?.fadeOut(0.2);
+        action2?.fadeOut(0.2);
+        // Clean up mixer listener, and empty the _listeners array
+        (action1 as any)._mixer.removeEventListener("finished", () =>
+          resetAnimation()
+        );
+        (action1 as any)._mixer._listeners = [];
+        // Clean up mixer listener, and empty the _listeners array
+        (action2 as any)._mixer.removeEventListener("finished", () =>
+          resetAnimation()
+        );
+        (action2 as any)._mixer._listeners = [];
+      } else {
+        // Fade out previous action
+        action?.fadeOut(0.2);
+
+        // Clean up mixer listener, and empty the _listeners array
+        (action as any)._mixer.removeEventListener("finished", () =>
+          resetAnimation()
+        );
+        (action as any)._mixer._listeners = [];
       }
     };
   }, [curAnimation]);

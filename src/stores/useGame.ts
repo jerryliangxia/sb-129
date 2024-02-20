@@ -208,11 +208,11 @@ type State = {
   setMoveToPoint: (point: THREE.Vector3) => void;
   getMoveToPoint: () => {
     moveToPoint: THREE.Vector3;
-  }
+  };
   setCameraBased: (isCameraBased: boolean) => void;
   getCameraBased: () => {
     isCameraBased: boolean;
-  }
+  };
 } & {
   [key in keyof AnimationSet]: () => void;
 };
