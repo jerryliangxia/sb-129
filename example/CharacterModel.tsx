@@ -61,7 +61,6 @@ export default function CharacterModel(props: CharacterModelProps) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
-  const [prevAnimation, setPrevAnimation] = useState("Idle");
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
@@ -76,10 +75,10 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "Jump_Idle",
     jumpLand: "Jump_Land",
     fall: "Jump_Idle",
-    topHalfAction: "RunWithoutTop",
-    action2: "Run",
-    action3: "Run",
-    action4: "Shoot",
+    action1: "RunWithoutTop",
+    action2: "RunWithoutTop",
+    action3: "RunWithoutTop",
+    action4: "Shoot2",
   };
 
   const applyBoneFiltering = (
@@ -131,8 +130,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     initializeAnimationSet(animationSet);
 
     // Example usage of applyBoneFiltering
-    if (actions["Shoot"]) {
-      applyBoneFiltering(actions["Shoot"], {
+    if (actions["Shoot2"]) {
+      applyBoneFiltering(actions["Shoot2"], {
         excludeBones: [
           "LegL",
           "CalfL",
@@ -146,7 +145,8 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
-          "Bone",
+          "Head",
+          "Neck",
         ],
       });
     }
@@ -166,7 +166,6 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
-          "Bone",
         ],
       });
     }
@@ -186,7 +185,6 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
-          "Bone",
         ],
       });
     }
@@ -206,7 +204,6 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
-          "Bone",
         ],
       });
     }
@@ -221,15 +218,16 @@ export default function CharacterModel(props: CharacterModelProps) {
 
     // For jump and jump land animation, only play once and clamp when finish
     let topHalfAction = actions[curAnimation];
-    let bottomHalfAction = shift
-      ? actions["RunWithoutTop"]
-      : anyWASDPressed && !shift
-      ? actions["WalkWithoutTop"]
-      : actions["IdleWithoutTop"];
+    let bottomHalfAction =
+      shift && anyWASDPressed
+        ? actions["RunWithoutTop"]
+        : anyWASDPressed && !shift
+        ? actions["WalkWithoutTop"]
+        : actions["IdleWithoutTop"];
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
-      curAnimation === animationSet.topHalfAction ||
+      curAnimation === animationSet.action1 ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3
     ) {
@@ -283,7 +281,6 @@ export default function CharacterModel(props: CharacterModelProps) {
             resetAnimation()
           );
           (bottomHalfAction as any)._mixer._listeners = [];
-          setPrevAnimation("Walk");
         }
       } else {
         // Fade out previous action
@@ -294,7 +291,6 @@ export default function CharacterModel(props: CharacterModelProps) {
           resetAnimation()
         );
         (action as any)._mixer._listeners = [];
-        setPrevAnimation(curAnimation);
       }
     };
   }, [curAnimation]);
