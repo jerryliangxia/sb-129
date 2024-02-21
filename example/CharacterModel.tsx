@@ -15,11 +15,53 @@ export default function CharacterModel(props: CharacterModelProps) {
     materials: { [name: string]: THREE.Material };
   };
   const { actions } = useAnimations(animations, group);
+  const [keysPressed, setKeysPressed] = useState({
+    w: false,
+    a: false,
+    s: false,
+    d: false,
+    shift: false,
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Shift") {
+        setKeysPressed((prev) => ({ ...prev, shift: true }));
+      }
+      if (["w", "a", "s", "d"].includes(event.key.toLowerCase())) {
+        setKeysPressed((prev) => ({
+          ...prev,
+          [event.key.toLowerCase()]: true,
+        }));
+      }
+    };
+
+    const handleKeyUp = (event) => {
+      if (event.key === "Shift") {
+        setKeysPressed((prev) => ({ ...prev, shift: false }));
+      }
+      if (["w", "a", "s", "d"].includes(event.key.toLowerCase())) {
+        setKeysPressed((prev) => ({
+          ...prev,
+          [event.key.toLowerCase()]: false,
+        }));
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   /**
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const [prevAnimation, setPrevAnimation] = useState("Idle");
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
@@ -34,7 +76,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "Jump_Idle",
     jumpLand: "Jump_Land",
     fall: "Jump_Idle",
-    action1: "RunWithoutTop",
+    topHalfAction: "RunWithoutTop",
     action2: "Run",
     action3: "Run",
     action4: "Shoot",
@@ -124,6 +166,7 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
+          "Bone",
         ],
       });
     }
@@ -143,6 +186,7 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
+          "Bone",
         ],
       });
     }
@@ -162,24 +206,30 @@ export default function CharacterModel(props: CharacterModelProps) {
           "FrontFootHeelR",
           "BackFootR",
           "BackFootHeelR",
+          "Bone",
         ],
       });
     }
   }, [actions, initializeAnimationSet]);
 
   useEffect(() => {
+    const { w, a, s, d, shift } = keysPressed;
+    const anyWASDPressed = w || a || s || d;
+
     // Play animation
     const action = actions[curAnimation ? curAnimation : animationSet.jumpIdle];
 
     // For jump and jump land animation, only play once and clamp when finish
-    let action1 = actions[curAnimation];
-    let action2 = actions["RunWithoutTop"];
-    let action3 = actions["WalkWithoutTop"];
-    console.log(action3);
+    let topHalfAction = actions[curAnimation];
+    let bottomHalfAction = shift
+      ? actions["RunWithoutTop"]
+      : anyWASDPressed && !shift
+      ? actions["WalkWithoutTop"]
+      : actions["IdleWithoutTop"];
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
-      curAnimation === animationSet.action1 ||
+      curAnimation === animationSet.topHalfAction ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3
     ) {
@@ -188,21 +238,21 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.clampWhenFinished = true;
       }
     } else if (curAnimation === animationSet.action4) {
-      if (action1 && action2) {
-        action1.syncWith(action2);
-        action1.play();
-        action1.clampWhenFinished = true;
-        (action1 as any)._mixer.addEventListener("finished", () =>
+      if (topHalfAction && bottomHalfAction) {
+        topHalfAction.syncWith(bottomHalfAction);
+        topHalfAction.play();
+        topHalfAction.clampWhenFinished = true;
+        (topHalfAction as any)._mixer.addEventListener("finished", () =>
           resetAnimation()
         );
-        action1.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
+        topHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
 
-        action2.play();
-        action2.clampWhenFinished = true;
-        (action2 as any)._mixer.addEventListener("finished", () =>
+        bottomHalfAction.play();
+        bottomHalfAction.clampWhenFinished = true;
+        (bottomHalfAction as any)._mixer.addEventListener("finished", () =>
           resetAnimation()
         );
-        action2.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
+        bottomHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
       }
     } else {
       action?.reset().fadeIn(0.2).play();
@@ -214,26 +264,26 @@ export default function CharacterModel(props: CharacterModelProps) {
     return () => {
       // Move hand collider back to initial position after action
       if (curAnimation === animationSet.action4) {
-        if (action1 && action2) {
-          (action1 as any)._mixer.addEventListener("finished", () =>
+        if (topHalfAction && bottomHalfAction) {
+          (topHalfAction as any)._mixer.addEventListener("finished", () =>
             resetAnimation()
           );
-          (action2 as any)._mixer.addEventListener("finished", () =>
+          (bottomHalfAction as any)._mixer.addEventListener("finished", () =>
             resetAnimation()
           );
 
-          action1.fadeOut(0.2);
-          action2.fadeOut(0.2);
+          topHalfAction.fadeOut(0.2);
+          bottomHalfAction.fadeOut(0.2);
 
-          (action1 as any)._mixer.removeEventListener("finished", () =>
+          (topHalfAction as any)._mixer.removeEventListener("finished", () =>
             resetAnimation()
           );
-          (action1 as any)._mixer._listeners = [];
-          (action2 as any)._mixer.removeEventListener("finished", () =>
+          (topHalfAction as any)._mixer._listeners = [];
+          (bottomHalfAction as any)._mixer.removeEventListener("finished", () =>
             resetAnimation()
           );
-          (action2 as any)._mixer._listeners = [];
-          // setPrevAnimation("Walk");
+          (bottomHalfAction as any)._mixer._listeners = [];
+          setPrevAnimation("Walk");
         }
       } else {
         // Fade out previous action
@@ -244,7 +294,7 @@ export default function CharacterModel(props: CharacterModelProps) {
           resetAnimation()
         );
         (action as any)._mixer._listeners = [];
-        // setPrevAnimation(curAnimation);
+        setPrevAnimation(curAnimation);
       }
     };
   }, [curAnimation]);
@@ -269,13 +319,13 @@ export default function CharacterModel(props: CharacterModelProps) {
             />
             <group name="SquidMesh">
               <skinnedMesh
-                castShadow
                 name="SK_MP_Squidwardmo"
                 geometry={nodes.SK_MP_Squidwardmo.geometry}
                 material={materials.Squid}
                 skeleton={nodes.SK_MP_Squidwardmo.skeleton}
               />
               <skinnedMesh
+                castShadow
                 name="SK_MP_Squidwardmo_1"
                 geometry={nodes.SK_MP_Squidwardmo_1.geometry}
                 material={materials.Outline}

@@ -64,7 +64,11 @@ export function EcctrlAnimation(props: EcctrlAnimationProps) {
 
   return (
     <Suspense fallback={null}>
-      <group ref={group} dispose={null} userData={{ camExcludeCollision: true }}>
+      <group
+        ref={group}
+        dispose={null}
+        userData={{ camExcludeCollision: true }}
+      >
         {/* Replace character model here */}
         {props.children}
       </group>
