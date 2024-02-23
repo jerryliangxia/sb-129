@@ -218,11 +218,12 @@ export default function CharacterModel(props: CharacterModelProps) {
 
     // For jump and jump land animation, only play once and clamp when finish
     let topHalfAction = actions[curAnimation];
+    // Just reverse the actions - rip animation system I made for three days
     let bottomHalfAction =
       shift && anyWASDPressed
-        ? actions["RunWithoutTop"]
-        : anyWASDPressed && !shift
         ? actions["WalkWithoutTop"]
+        : anyWASDPressed && !shift
+        ? actions["RunWithoutTop"]
         : actions["IdleWithoutTop"];
     if (
       curAnimation === animationSet.jump ||
@@ -245,7 +246,7 @@ export default function CharacterModel(props: CharacterModelProps) {
         );
         topHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
 
-        bottomHalfAction.play();
+        bottomHalfAction.reset().fadeIn(0.2).play();
         bottomHalfAction.clampWhenFinished = true;
         (bottomHalfAction as any)._mixer.addEventListener("finished", () =>
           resetAnimation()
