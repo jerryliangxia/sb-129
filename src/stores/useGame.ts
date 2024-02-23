@@ -22,6 +22,29 @@ export const useGame = /* @__PURE__ */ create(
       curAnimation: null as string,
       animationSet: {} as AnimationSet,
 
+      combatMode: "melee" as "melee" | "farRange",
+
+      /**
+       * Switch to melee combat mode
+       */
+      switchToMelee: () => {
+        set(() => ({ combatMode: "melee" }));
+      },
+
+      /**
+       * Switch to far range combat mode
+       */
+      switchToFarRange: () => {
+        set(() => ({ combatMode: "farRange" }));
+      },
+
+      /**
+       * Get the current combat mode
+       */
+      getCombatMode: () => {
+        return get().combatMode;
+      },
+
       initializeAnimationSet: (animationSet: AnimationSet) => {
         set((state) => {
           if (Object.keys(state.animationSet).length === 0) {
@@ -202,6 +225,10 @@ type State = {
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;
+  combatMode: "melee" | "farRange";
+  switchToMelee: () => void;
+  switchToFarRange: () => void;
+  getCombatMode: () => "melee" | "farRange";
   animationSet: AnimationSet;
   initializeAnimationSet: (animationSet: AnimationSet) => void;
   reset: () => void;

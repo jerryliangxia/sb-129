@@ -9,7 +9,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squid_try6.glb"
+    "/squid_try8.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -61,24 +61,28 @@ export default function CharacterModel(props: CharacterModelProps) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const combatMode = useGame((state) => state.combatMode);
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
   );
 
+  let mugModel: THREE.Object3D = null;
+  let mugModl: THREE.Object3D = null;
+
   // Rename your character animations here
   const animationSet = {
-    idle: "Idle",
-    walk: "Walk",
-    run: "Run2", // don't know why this is the case
+    idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
+    walk: combatMode === "melee" ? "Walk30Clarinet" : "Walk",
+    run: combatMode === "melee" ? "Run20Clarinet" : "Run2",
     jump: "Jump_Start",
     jumpIdle: "Jump_Idle",
     jumpLand: "Jump_Land",
     fall: "Jump_Idle",
-    action1: "RunWithoutTop",
-    action2: "RunWithoutTop",
-    action3: "RunWithoutTop",
-    action4: "Shoot2",
+    action1: "Attack2Clarinet",
+    action2: "Run2Clarinet",
+    action3: "Walk2Clarinet",
+    action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
   };
 
   const applyBoneFiltering = (
@@ -126,12 +130,57 @@ export default function CharacterModel(props: CharacterModelProps) {
   };
 
   useEffect(() => {
+    if (!group.current) return;
+    group.current.traverse((obj) => {
+      // Prepare mug model for cheer action
+      if (obj.name === "Clarinet") {
+        mugModel = obj;
+      }
+      if (obj.name === "Gun") {
+        mugModl = obj;
+      }
+    });
+  });
+
+  useEffect(() => {
+    // Prepare mug model for cheer action
+    if (combatMode === "melee") {
+      mugModel.visible = true;
+      mugModl.visible = false;
+    } else {
+      mugModl.visible = true;
+      mugModel.visible = false;
+    }
+  }, [combatMode]);
+
+  useEffect(() => {
     // Initialize animation set
     initializeAnimationSet(animationSet);
 
     // Example usage of applyBoneFiltering
     if (actions["Shoot2"]) {
       applyBoneFiltering(actions["Shoot2"], {
+        excludeBones: [
+          "LegL",
+          "CalfL",
+          "FrontFootL",
+          "FrontFootHeelL",
+          "BackFootL",
+          "BackFootHeelL",
+          "LegR",
+          "CalfR",
+          "FrontFootR",
+          "FrontFootHeelR",
+          "BackFootR",
+          "BackFootHeelR",
+          "Head",
+          "Neck",
+        ],
+      });
+    }
+
+    if (actions["AttackClarinet"]) {
+      applyBoneFiltering(actions["AttackClarinet"], {
         excludeBones: [
           "LegL",
           "CalfL",
@@ -221,9 +270,9 @@ export default function CharacterModel(props: CharacterModelProps) {
     // Just reverse the actions - rip animation system I made for three days
     let bottomHalfAction =
       shift && anyWASDPressed
-        ? actions["WalkWithoutTop"]
-        : anyWASDPressed && !shift
         ? actions["RunWithoutTop"]
+        : anyWASDPressed && !shift
+        ? actions["WalkWithoutTop"]
         : actions["IdleWithoutTop"];
     if (
       curAnimation === animationSet.jump ||
