@@ -325,11 +325,13 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.clampWhenFinished = true;
       }
     } else if (curAnimation === animationSet.action4) {
-      setPunchEffectProp((prev) => ({
-        ...prev,
-        visible: true,
-        play: true,
-      }));
+      if (animationSet.action4 === "Shoot2") {
+        setPunchEffectProp((prev) => ({
+          ...prev,
+          visible: true,
+          play: true,
+        }));
+      }
       if (topHalfAction && bottomHalfAction) {
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
