@@ -18,9 +18,21 @@ export default function ShotCube(props) {
   const clickToCreateBox = () => {
     if (document.pointerLockElement) {
       // camera.parent?.getWorldPosition(position);
+      const referenceDirection = new THREE.Vector3(0, 0, 1);
+      const angle = direction.angleTo(referenceDirection);
+      const rotationAxis = new THREE.Vector3()
+        .crossVectors(referenceDirection, direction)
+        .normalize();
+      const quaternion = new THREE.Quaternion().setFromAxisAngle(
+        rotationAxis,
+        angle
+      );
+      let offset = new THREE.Vector3(-0.1, 0, 0.1);
+      offset.applyQuaternion(quaternion);
+      const newPosition = position.clone().add(offset);
       const newMesh = (
         <mesh
-          position={[position.x, position.y + 1.3, position.z]}
+          position={[newPosition.x, newPosition.y + 0.9, newPosition.z]}
           castShadow
           receiveShadow
         >
@@ -34,6 +46,7 @@ export default function ShotCube(props) {
 
   useEffect(() => {
     // camera.parent?.getWorldDirection(direction);
+    console.log(direction);
     if (cubeMesh.length > 0) {
       cubeRef.current?.setLinvel(
         new THREE.Vector3(
