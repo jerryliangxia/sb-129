@@ -10,7 +10,7 @@ export default function ShotCube(props) {
   const cubeRef = useRef<RapierRigidBody>();
 
   // const position = useMemo(() => new THREE.Vector3(), []);
-  // const direction = useMemo(() => new THREE.Vector3(), []);
+  const directionCamera = useMemo(() => new THREE.Vector3(), []);
   const curAnimation = useGame((state) => state.curAnimation);
   const position = useGame((state) => state.curPosition);
   const direction = useGame((state) => state.curDirection);
@@ -45,13 +45,12 @@ export default function ShotCube(props) {
   };
 
   useEffect(() => {
-    // camera.parent?.getWorldDirection(direction);
-    console.log(direction);
+    camera.parent?.getWorldDirection(directionCamera);
     if (cubeMesh.length > 0) {
       cubeRef.current?.setLinvel(
         new THREE.Vector3(
           direction.x * 40,
-          direction.y * 40 + 4,
+          directionCamera.y * 40 + 4,
           direction.z * 40
         ),
         false
