@@ -1,4 +1,4 @@
-import { useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF, SpriteAnimator } from "@react-three/drei";
 import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
@@ -21,6 +21,17 @@ export default function CharacterModel(props: CharacterModelProps) {
     s: false,
     d: false,
     shift: false,
+  });
+
+  /**
+   * Prepare punch effect sprite
+   */
+  const [punchEffectProps, setPunchEffectProp] = useState({
+    visible: false,
+    scale: [2, 2, 2],
+    play: false,
+    position: [0, 2.3, 1.5],
+    startFrame: 0,
   });
 
   useEffect(() => {
@@ -314,6 +325,11 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.clampWhenFinished = true;
       }
     } else if (curAnimation === animationSet.action4) {
+      setPunchEffectProp((prev) => ({
+        ...prev,
+        visible: true,
+        play: true,
+      }));
       if (topHalfAction && bottomHalfAction) {
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
@@ -410,6 +426,24 @@ export default function CharacterModel(props: CharacterModelProps) {
           </group>
           <group name="Empty" position={[0.516, 1.362, 0.801]} />
         </group>
+        <SpriteAnimator
+          visible={punchEffectProps.visible}
+          scale={punchEffectProps.scale as any}
+          position={punchEffectProps.position as any}
+          startFrame={punchEffectProps.startFrame}
+          loop={true}
+          onLoopEnd={() => {
+            setPunchEffectProp((prev) => ({
+              ...prev,
+              visible: false,
+              play: false,
+            }));
+          }}
+          play={punchEffectProps.play}
+          numberOfFrames={7}
+          alphaTest={0.1}
+          textureImageURL={"./punchEffect.png"}
+        />
       </group>
     </Suspense>
   );

@@ -37,7 +37,7 @@ export default function ShotCube(props) {
           receiveShadow
         >
           <sphereGeometry args={[0.1, 4, 4]} />
-          <meshStandardMaterial color="black" />
+          <meshStandardMaterial color="gray" />
         </mesh>
       );
       setCubeMesh((prevMeshes) => [...prevMeshes, newMesh]);
