@@ -13,7 +13,7 @@ export default {
     open: !isCodeSandbox, // Open if it's not a CodeSandbox
   },
   build: {
-    outDir: "./exampleDist",
+    outDir: "./exampleDist", // Use this
     emptyOutDir: true,
     sourcemap: true,
   },
