@@ -1,27 +1,31 @@
 import * as THREE from "three";
-import { useThree } from "@react-three/fiber";
+import { useThree, useFrame } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { useRef, useMemo, useState, useEffect } from "react";
+import { useGame } from "../src/stores/useGame";
 
-export default function ShotCube() {
+export default function ShotCube(props) {
   const { camera } = useThree();
   const [cubeMesh, setCubeMesh] = useState([]);
   const cubeRef = useRef<RapierRigidBody>();
 
-  const position = useMemo(() => new THREE.Vector3(), []);
-  const direction = useMemo(() => new THREE.Vector3(), []);
+  // const position = useMemo(() => new THREE.Vector3(), []);
+  // const direction = useMemo(() => new THREE.Vector3(), []);
+  const curAnimation = useGame((state) => state.curAnimation);
+  const position = useGame((state) => state.curPosition);
+  const direction = useGame((state) => state.curDirection);
 
   const clickToCreateBox = () => {
     if (document.pointerLockElement) {
-      camera.parent?.getWorldPosition(position);
+      // camera.parent?.getWorldPosition(position);
       const newMesh = (
         <mesh
-          position={[position.x, position.y - 0.5, position.z]}
+          position={[position.x, position.y + 1.3, position.z]}
           castShadow
           receiveShadow
         >
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-          <meshStandardMaterial color="orange" />
+          <sphereGeometry args={[0.1, 4, 4]} />
+          <meshStandardMaterial color="black" />
         </mesh>
       );
       setCubeMesh((prevMeshes) => [...prevMeshes, newMesh]);
@@ -29,13 +33,13 @@ export default function ShotCube() {
   };
 
   useEffect(() => {
-    camera.parent?.getWorldDirection(direction);
+    // camera.parent?.getWorldDirection(direction);
     if (cubeMesh.length > 0) {
       cubeRef.current?.setLinvel(
         new THREE.Vector3(
-          direction.x * 20,
-          direction.y * 20 + 2,
-          direction.z * 20
+          direction.x * 40,
+          direction.y * 40 + 4,
+          direction.z * 40
         ),
         false
       );
@@ -43,12 +47,8 @@ export default function ShotCube() {
   }, [cubeMesh]);
 
   useEffect(() => {
-    window.addEventListener("click", () => clickToCreateBox());
-
-    return () => {
-      window.removeEventListener("click", () => clickToCreateBox());
-    };
-  }, []);
+    if (curAnimation === "Shoot2") clickToCreateBox();
+  }, [curAnimation]);
 
   return (
     <>

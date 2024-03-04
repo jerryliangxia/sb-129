@@ -24,6 +24,21 @@ export const useGame = /* @__PURE__ */ create(
 
       combatMode: "melee" as "melee" | "farRange",
 
+      curPosition: null as THREE.Vector3,
+      curDirection: null as THREE.Vector3,
+
+      setCurPosition: (position: THREE.Vector3) => {
+        set((state) => {
+          return { ...state, curPosition: position };
+        });
+      },
+
+      setCurDirection: (direction: THREE.Vector3) => {
+        set((state) => {
+          return { ...state, curDirection: direction };
+        });
+      },
+
       /**
        * Switch to melee combat mode
        */
@@ -50,7 +65,7 @@ export const useGame = /* @__PURE__ */ create(
           if (Object.keys(state.animationSet).length === 0) {
             return { animationSet };
           }
-          return {};
+          return { animationSet: animationSet };
         });
       },
 
@@ -126,7 +141,10 @@ export const useGame = /* @__PURE__ */ create(
 
       action1: () => {
         set((state) => {
-          if (state.curAnimation === state.animationSet.idle) {
+          if (
+            state.curAnimation === state.animationSet.idle &&
+            state.combatMode !== "melee"
+          ) {
             return { curAnimation: state.animationSet.action1 };
           }
           return {};
@@ -135,7 +153,10 @@ export const useGame = /* @__PURE__ */ create(
 
       action2: () => {
         set((state) => {
-          if (state.curAnimation === state.animationSet.idle) {
+          if (
+            state.curAnimation === state.animationSet.idle &&
+            state.combatMode === "melee"
+          ) {
             return { curAnimation: state.animationSet.action2 };
           }
           return {};
@@ -229,6 +250,10 @@ type State = {
   switchToMelee: () => void;
   switchToFarRange: () => void;
   getCombatMode: () => "melee" | "farRange";
+  curPosition: THREE.Vector3;
+  curDirection: THREE.Vector3;
+  setCurPosition: (position: THREE.Vector3) => void;
+  setCurDirection: (direction: THREE.Vector3) => void;
   animationSet: AnimationSet;
   initializeAnimationSet: (animationSet: AnimationSet) => void;
   reset: () => void;

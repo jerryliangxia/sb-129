@@ -931,6 +931,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           (value) => {
             if (value) {
               animated && action1Animation();
+              useGame.getState().switchToMelee();
             }
           }
         );
@@ -941,6 +942,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           (value) => {
             if (value) {
               animated && action2Animation();
+              useGame.getState().switchToFarRange();
             }
           }
         );

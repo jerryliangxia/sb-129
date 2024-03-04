@@ -1,5 +1,5 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
 import { useFrame } from "@react-three/fiber";
@@ -9,7 +9,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squid_try8.glb"
+    "/squid_try9.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -61,6 +61,8 @@ export default function CharacterModel(props: CharacterModelProps) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const setCurPosition = useGame((state) => state.setCurPosition);
+  const setCurDirection = useGame((state) => state.setCurDirection);
   const combatMode = useGame((state) => state.combatMode);
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
@@ -71,7 +73,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   let mugModl: THREE.Object3D = null;
 
   // Rename your character animations here
-  const animationSet = {
+  let animationSet = {
     idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
     walk: combatMode === "melee" ? "Walk30Clarinet" : "Walk",
     run: combatMode === "melee" ? "Run20Clarinet" : "Run2",
@@ -79,11 +81,22 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "Jump_Idle",
     jumpLand: "Jump_Land",
     fall: "Jump_Idle",
-    action1: "Attack2Clarinet",
-    action2: "Run2Clarinet",
-    action3: "Walk2Clarinet",
+    action1: "Jump_Idle",
+    action2: "Jump_Idle",
+    action3: "Jump_Land",
     action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
   };
+
+  useFrame((state, delta) => {
+    setCurPosition(
+      group?.current?.getWorldPosition(new THREE.Vector3()) ??
+        new THREE.Vector3()
+    );
+    setCurDirection(
+      group?.current?.getWorldDirection(new THREE.Vector3()) ??
+        new THREE.Vector3()
+    );
+  });
 
   const applyBoneFiltering = (
     action: THREE.AnimationAction,
@@ -129,6 +142,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     (action as any)._interpolants = filteredInterpolants;
   };
 
+  // Initialize clarinet and gun model
   useEffect(() => {
     if (!group.current) return;
     group.current.traverse((obj) => {
@@ -151,7 +165,21 @@ export default function CharacterModel(props: CharacterModelProps) {
       mugModl.visible = true;
       mugModel.visible = false;
     }
-  }, [combatMode]);
+    animationSet = {
+      idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
+      walk: combatMode === "melee" ? "Walk30Clarinet" : "Walk",
+      run: combatMode === "melee" ? "Run20Clarinet" : "Run2",
+      jump: "Jump_Start",
+      jumpIdle: "Jump_Idle",
+      jumpLand: "Jump_Land",
+      fall: "Jump_Idle",
+      action1: "Jump_Idle",
+      action2: "Jump_Idle",
+      action3: "Jump_Land",
+      action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
+    };
+    initializeAnimationSet(animationSet);
+  }, [combatMode, initializeAnimationSet]);
 
   useEffect(() => {
     // Initialize animation set
