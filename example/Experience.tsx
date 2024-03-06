@@ -14,6 +14,7 @@ import ShotCube from "./ShotCube";
 import { useControls } from "leva";
 import CharacterModel from "./CharacterModel";
 import React from "react";
+import Enemies from "./Enemies";
 
 export default function Experience() {
   /**
@@ -98,6 +99,9 @@ export default function Experience() {
 
         {/* Shoting cubes */}
         <ShotCube />
+
+        {/* Enemies */}
+        <Enemies />
       </Physics>
     </>
   );

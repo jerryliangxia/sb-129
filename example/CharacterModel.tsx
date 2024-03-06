@@ -80,8 +80,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     (state) => state.initializeAnimationSet
   );
 
-  let mugModel: THREE.Object3D = null;
-  let mugModl: THREE.Object3D = null;
+  let clarinet: THREE.Object3D = null;
+  let squidGun: THREE.Object3D = null;
 
   // Rename your character animations here
   let animationSet = {
@@ -159,22 +159,23 @@ export default function CharacterModel(props: CharacterModelProps) {
     group.current.traverse((obj) => {
       // Prepare mug model for cheer action
       if (obj.name === "Clarinet") {
-        mugModel = obj;
+        clarinet = obj;
       }
       if (obj.name === "Gun") {
-        mugModl = obj;
+        squidGun = obj;
       }
     });
   });
 
+  // Initialize animation set
   useEffect(() => {
     // Prepare mug model for cheer action
     if (combatMode === "melee") {
-      mugModel.visible = true;
-      mugModl.visible = false;
+      clarinet.visible = true;
+      squidGun.visible = false;
     } else {
-      mugModl.visible = true;
-      mugModel.visible = false;
+      squidGun.visible = true;
+      clarinet.visible = false;
     }
     animationSet = {
       idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
@@ -192,6 +193,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     initializeAnimationSet(animationSet);
   }, [combatMode, initializeAnimationSet]);
 
+  // Bone filtering
   useEffect(() => {
     // Initialize animation set
     initializeAnimationSet(animationSet);

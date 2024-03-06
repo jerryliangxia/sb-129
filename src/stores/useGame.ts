@@ -40,6 +40,24 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       /**
+       * Get the current position and direction; needed since EnemyEntity requires it
+       */
+      getCurPosition: () => {
+        return get().curPosition;
+      },
+
+      getCurDirection: () => {
+        return get().curDirection;
+      },
+
+      /**
+       * Get the current combat mode
+       */
+      getCombatMode: () => {
+        return get().combatMode;
+      },
+
+      /**
        * Switch to melee combat mode
        */
       switchToMelee: () => {
@@ -254,6 +272,8 @@ type State = {
   curDirection: THREE.Vector3;
   setCurPosition: (position: THREE.Vector3) => void;
   setCurDirection: (direction: THREE.Vector3) => void;
+  getCurPosition: () => THREE.Vector3;
+  getCurDirection: () => THREE.Vector3;
   animationSet: AnimationSet;
   initializeAnimationSet: (animationSet: AnimationSet) => void;
   reset: () => void;

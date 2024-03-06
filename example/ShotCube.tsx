@@ -4,7 +4,7 @@ import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
 
-export default function ShotCube(props) {
+export default function ShotCube() {
   const { camera } = useThree();
   const [cubeMesh, setCubeMesh] = useState([]);
   const cubeRef = useRef<RapierRigidBody>();
