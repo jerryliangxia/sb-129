@@ -71,13 +71,6 @@ export const useGame = /* @__PURE__ */ create(
         set(() => ({ combatMode: "farRange" }));
       },
 
-      /**
-       * Get the current combat mode
-       */
-      getCombatMode: () => {
-        return get().combatMode;
-      },
-
       initializeAnimationSet: (animationSet: AnimationSet) => {
         set((state) => {
           if (Object.keys(state.animationSet).length === 0) {
