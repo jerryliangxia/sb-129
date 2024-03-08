@@ -7,15 +7,9 @@ All of the assets actions, action-names and clips are available in its output.
 
 import * as THREE from "three";
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import {
-  useGLTF,
-  useTexture,
-  useCursor,
-  useAnimations,
-} from "@react-three/drei";
+import { useGLTF, useTexture, useAnimations } from "@react-three/drei";
 import { useGame } from "../src/stores/useGame";
 import { useGraph, useFrame } from "@react-three/fiber";
-import { a, useSpring } from "@react-spring/three";
 import { SkeletonUtils } from "three-stdlib";
 import { RigidBody, CapsuleCollider } from "@react-three/rapier";
 
@@ -30,9 +24,9 @@ function verifyLinvel(body) {
   return linvelMagnitude < MAX_LINVEL;
 }
 
-function getRotation(impulse, delta, scene) {
+function getRotation(impulse, delta, ref) {
   const targetAngle = Math.atan2(impulse.x, impulse.z);
-  const currentAngle = scene.rotation.y;
+  const currentAngle = ref.rotation.y;
   const newAngle = THREE.MathUtils.lerp(
     currentAngle,
     targetAngle,
@@ -55,7 +49,8 @@ export default function Model({ position, ...props }) {
   // For the rigidbody component
   const body = useRef<RigidBody>();
   // Fetch model and a separate texture
-  const { scene, animations } = useGLTF("/stacy.glb");
+  const { scene, animations, materials } = useGLTF("/sb_restart.glb");
+  const texture = useTexture("/sponge_512.png");
   //   const texture = useTexture("/stacy.jpg");
 
   // Skinned meshes cannot be re-used in threejs without cloning them
@@ -68,15 +63,7 @@ export default function Model({ position, ...props }) {
   const getCharacterPosition = useGame((state) => state.getCurPosition);
 
   // Hover and animation-index states
-  //   const [hovered, setHovered] = useState(false);
-  const [index, setIndex] = useState(1); // Set to idle
-  // Animate the selection halo
-  //   const { color, scale } = useSpring({
-  //     scale: hovered ? [1.15, 1.15, 1] : [1, 1, 1],
-  //     color: hovered ? "hotpink" : "aquamarine",
-  //   });
-  // Change cursor on hover-state
-  //   useCursor(hovered);
+  const [index, setIndex] = useState(1);
 
   useEffect(() => {
     actions[names[index]]?.reset().fadeIn(0.5).play();
@@ -100,11 +87,12 @@ export default function Model({ position, ...props }) {
     if (bodyTranslation.distanceTo(characterPosition) > ATTACK_THRESHOLD) {
       const impulse = getImpulse(delta, direction);
       if (ref.current) {
-        ref.current.rotation.y = getRotation(impulse, delta, scene);
+        console.log(getRotation(impulse, delta, ref.current));
+        ref.current.rotation.y = getRotation(impulse, delta, ref.current);
       }
       if (verifyLinvel(body)) body.current.applyImpulse(impulse);
       // Walk
-      setIndex(2);
+      setIndex(1);
     } else {
       // Attack
       setIndex(0);
@@ -114,6 +102,7 @@ export default function Model({ position, ...props }) {
   return (
     <RigidBody
       ref={body}
+      colliders={false}
       canSleep={false}
       mass={1.0}
       position={position}
@@ -123,23 +112,28 @@ export default function Model({ position, ...props }) {
     >
       <CapsuleCollider args={[0.4, 0.4]} position={[0, 0.8, 0]} />
       <group ref={ref} dispose={null}>
-        <group rotation={[Math.PI / 2, 0, 0]} scale={[0.01, 0.01, 0.01]}>
-          <primitive object={nodes.mixamorigHips} />
-          <skinnedMesh
-            castShadow
-            receiveShadow
-            geometry={nodes.stacy.geometry}
-            skeleton={nodes.stacy.skeleton}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={[100, 100, 100]}
-          >
-            {/* <meshStandardMaterial map-flipY={false} skinning /> */}
-          </skinnedMesh>
+        <group name="Scene">
+          <group name="Armature" position={[0, 0.316, 0]} scale={0.651}>
+            <group name="Sponge">
+              <skinnedMesh
+                name="Cube003"
+                geometry={nodes.Cube003.geometry}
+                skeleton={nodes.Cube003.skeleton}
+              >
+                <meshStandardMaterial map={texture} map-flipY={false} />
+              </skinnedMesh>
+              <skinnedMesh
+                name="Cube003_1"
+                geometry={nodes.Cube003_1.geometry}
+                material={materials.Outline}
+                skeleton={nodes.Cube003_1.skeleton}
+              />
+            </group>
+            <primitive object={nodes.Main} />
+            <primitive object={nodes.ShoulderL} />
+            <primitive object={nodes.ShoulderR} />
+          </group>
         </group>
-        {/* <a.mesh receiveShadow position={[0, 1, -1]} scale={scale}>
-        <circleBufferGeometry args={[0.6, 64]} />
-        <a.meshStandardMaterial color={color} />
-      </a.mesh> */}
       </group>
     </RigidBody>
   );
