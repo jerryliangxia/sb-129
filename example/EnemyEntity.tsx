@@ -87,7 +87,6 @@ export default function Model({ position, ...props }) {
     if (bodyTranslation.distanceTo(characterPosition) > ATTACK_THRESHOLD) {
       const impulse = getImpulse(delta, direction);
       if (ref.current) {
-        console.log(getRotation(impulse, delta, ref.current));
         ref.current.rotation.y = getRotation(impulse, delta, ref.current);
       }
       if (verifyLinvel(body)) body.current.applyImpulse(impulse);
