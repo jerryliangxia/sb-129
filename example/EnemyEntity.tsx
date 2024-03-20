@@ -49,7 +49,8 @@ export default function Model({ position, ...props }) {
   // For the rigidbody component
   const body = useRef<RigidBody>();
   // Fetch model and a separate texture
-  const { scene, animations, materials } = useGLTF("/sb_restart.glb");
+  // const { scene, animations, materials } = useGLTF("/sb_restart.glb");
+  const { scene, animations, materials } = useGLTF("/sb_onemesh.glb");
   const texture = useTexture("/sponge_512.png");
   //   const texture = useTexture("/stacy.jpg");
 
@@ -64,16 +65,40 @@ export default function Model({ position, ...props }) {
 
   // Hover and animation-index states
   const [index, setIndex] = useState(1);
+  const [numHits, setNumHits] = useState(2);
+  const [isBeingHit, setIsBeingHit] = useState(false);
+  const [isDying, setIsDying] = useState(false);
 
   useEffect(() => {
-    actions[names[index]]?.reset().fadeIn(0.5).play();
+    const action = actions[names[index]];
+    if (action) {
+      action.reset().fadeIn(0.5).play();
+      if (index === 1) {
+        action.clampWhenFinished = true;
+        action.loop = THREE.LoopOnce;
+      } else {
+        // Reset to default behavior for other indices if needed
+        action.clampWhenFinished = false;
+        action.loop = THREE.LoopRepeat; // Or any other default loop mode you're using
+      }
+    }
+
     return () => {
       actions[names[index]]?.fadeOut(0.5);
+      setIsBeingHit(false);
       // Explicitly return void
     };
   }, [index, actions, names]);
 
   useFrame((state, delta) => {
+    if (isDying) {
+      setIndex(1);
+      return;
+    }
+    if (isBeingHit) {
+      setIndex(2);
+      return;
+    }
     const characterPosition = getCharacterPosition();
     if (!body.current || !characterPosition) return;
     const direction = new THREE.Vector3()
@@ -91,7 +116,7 @@ export default function Model({ position, ...props }) {
       }
       if (verifyLinvel(body)) body.current.applyImpulse(impulse);
       // Walk
-      setIndex(1);
+      setIndex(3);
     } else {
       // Attack
       setIndex(0);
@@ -108,6 +133,19 @@ export default function Model({ position, ...props }) {
       linearDamping={1}
       angularDamping={0.5}
       enabledRotations={[false, false, false]}
+      onCollisionEnter={(event) => {
+        if ((event.collider as any)._parent?.userData.type === "shotCube") {
+          (event.collider as any)._parent.userData.type = null;
+          setNumHits(numHits - 1);
+          if (numHits === 0) {
+            setIsDying(true);
+            setIndex(1);
+          } else {
+            setIsBeingHit(true);
+            setIndex(2);
+          }
+        }
+      }}
     >
       <CapsuleCollider args={[0.4, 0.4]} position={[0, 0.8, 0]} />
       <group ref={ref} dispose={null}>

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useThree, useFrame } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
-import { useRef, useMemo, useState, useEffect } from "react";
+import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
 
 export default function ShotCube() {
@@ -66,7 +66,12 @@ export default function ShotCube() {
     <>
       {cubeMesh.map((item, i) => {
         return (
-          <RigidBody key={i} mass={0.6} ref={cubeRef}>
+          <RigidBody
+            key={i}
+            mass={0.6}
+            ref={cubeRef}
+            userData={{ type: "shotCube" }}
+          >
             {item}
           </RigidBody>
         );
