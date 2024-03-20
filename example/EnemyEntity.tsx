@@ -7,7 +7,12 @@ All of the assets actions, action-names and clips are available in its output.
 
 import * as THREE from "three";
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { useGLTF, useTexture, useAnimations } from "@react-three/drei";
+import {
+  useGLTF,
+  useTexture,
+  useAnimations,
+  SpriteAnimator,
+} from "@react-three/drei";
 import { useGame } from "../src/stores/useGame";
 import { useGraph, useFrame } from "@react-three/fiber";
 import { SkeletonUtils } from "three-stdlib";
@@ -69,6 +74,14 @@ export default function Model({ position, ...props }) {
   const [isBeingHit, setIsBeingHit] = useState(false);
   const [isDying, setIsDying] = useState(false);
 
+  const [punchEffectProps, setPunchEffectProp] = useState({
+    visible: false,
+    scale: [2, 2, 2],
+    play: false,
+    position: [0, 0, -1],
+    startFrame: 0,
+  });
+
   useEffect(() => {
     const action = actions[names[index]];
     if (action) {
@@ -76,6 +89,15 @@ export default function Model({ position, ...props }) {
       if (index === 1) {
         action.clampWhenFinished = true;
         action.loop = THREE.LoopOnce;
+        setTimeout(() => {
+          if (numHits === -1) {
+            setPunchEffectProp((prev) => ({
+              ...prev,
+              visible: true,
+              play: true,
+            }));
+          }
+        }, 1000);
       } else {
         // Reset to default behavior for other indices if needed
         action.clampWhenFinished = false;
@@ -147,8 +169,10 @@ export default function Model({ position, ...props }) {
         }
       }}
     >
-      <CapsuleCollider args={[0.4, 0.4]} position={[0, 0.8, 0]} />
-      <group ref={ref} dispose={null}>
+      {numHits > -1 && (
+        <CapsuleCollider args={[0.4, 0.4]} position={[0, 0.8, 0]} />
+      )}
+      <group ref={ref} dispose={null} visible={numHits > -2}>
         <group name="Scene">
           <group name="Armature" position={[0, 0.316, 0]} scale={0.651}>
             <group name="Sponge">
@@ -171,6 +195,25 @@ export default function Model({ position, ...props }) {
             <primitive object={nodes.ShoulderR} />
           </group>
         </group>
+        <SpriteAnimator
+          visible={punchEffectProps.visible}
+          scale={punchEffectProps.scale as any}
+          position={punchEffectProps.position as any}
+          startFrame={punchEffectProps.startFrame}
+          loop={true}
+          onLoopEnd={() => {
+            setPunchEffectProp((prev) => ({
+              ...prev,
+              visible: false,
+              play: false,
+            }));
+            if (numHits == -1) setNumHits(-2);
+          }}
+          play={punchEffectProps.play}
+          numberOfFrames={7}
+          alphaTest={0.1}
+          textureImageURL={"./punchEffect.png"}
+        />
       </group>
     </RigidBody>
   );

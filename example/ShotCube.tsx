@@ -33,8 +33,8 @@ export default function ShotCube() {
       const newMesh = (
         <mesh
           position={[newPosition.x, newPosition.y + 0.9, newPosition.z]}
-          castShadow
-          receiveShadow
+          // castShadow
+          // receiveShadow
         >
           <sphereGeometry args={[0.1, 4, 4]} />
           <meshStandardMaterial color="gray" />
