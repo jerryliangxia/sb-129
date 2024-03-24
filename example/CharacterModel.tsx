@@ -3,6 +3,7 @@ import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
 import { useFrame } from "@react-three/fiber";
+import { BallCollider, CapsuleCollider, RigidBody } from "@react-three/rapier";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 export default function CharacterModel(props: CharacterModelProps) {
@@ -299,6 +300,60 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
   }, [actions, initializeAnimationSet]);
 
+  const rightHandRef = useRef<THREE.Mesh>();
+  const rightHandColliderRef = useRef<RapierCollider>();
+  const leftHandRef = useRef<THREE.Mesh>();
+  const leftHandColliderRef = useRef<RapierCollider>();
+  const rightHandPos = useMemo(() => new THREE.Vector3(), []);
+  const leftHandPos = useMemo(() => new THREE.Vector3(), []);
+  const bodyPos = useMemo(() => new THREE.Vector3(), []);
+  const bodyRot = useMemo(() => new THREE.Quaternion(), []);
+  let rightHand: THREE.Object3D = null;
+  let leftHand: THREE.Object3D = null;
+
+  useEffect(() => {
+    group?.current?.traverse((obj) => {
+      // Prepare both hands bone object
+      if (obj instanceof THREE.Bone) {
+        if (obj.name === "HandTopR") rightHand = obj;
+        if (obj.name === "HandTopL") leftHand = obj;
+      }
+    });
+  });
+
+  useFrame(() => {
+    if (curAnimation === "Attack20Clarinet") {
+      if (rightHand) {
+        rightHand.getWorldPosition(rightHandPos);
+        group?.current?.getWorldPosition(bodyPos);
+        group?.current?.getWorldQuaternion(bodyRot);
+      }
+
+      // Apply hands position to hand colliders
+      if (rightHandColliderRef.current) {
+        // check if parent group autobalance is on or off
+        if (
+          group?.current?.parent?.quaternion.y === 0 &&
+          group?.current?.parent?.quaternion.w === 1
+        ) {
+          rightHandRef?.current?.position
+            .copy(rightHandPos)
+            .sub(bodyPos)
+            .sub(new THREE.Vector3(0, 1.0, 0.2))
+            .applyQuaternion(bodyRot.conjugate());
+        } else {
+          rightHandRef?.current?.position
+            .copy(rightHandPos)
+            .sub(bodyPos)
+            .applyQuaternion(bodyRot.conjugate());
+        }
+        rightHandColliderRef?.current?.setTranslationWrtParent(
+          rightHandRef?.current?.position
+        );
+      }
+    }
+  });
+
   useEffect(() => {
     const { w, a, s, d, shift } = keysPressed;
     const anyWASDPressed = w || a || s || d;
@@ -395,6 +450,35 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   return (
     <Suspense fallback={<capsuleGeometry args={[0.3, 0.7]} />}>
+      {/* Right hand collider */}
+      <mesh ref={rightHandRef} />
+      {curAnimation === animationSet.action4 ? (
+        <RigidBody userData={{ type: "clarinet" }}>
+          <CapsuleCollider
+            args={[0.1, 0.1]}
+            rotation={[Math.PI / 2, 0, 0]}
+            ref={rightHandColliderRef}
+            onCollisionEnter={(e) => {
+              console.log(e);
+              if (curAnimation === animationSet.action4) {
+                // Play punch effect
+                setPunchEffectProp((prev) => ({
+                  ...prev,
+                  visible: true,
+                  play: true,
+                }));
+              }
+            }}
+          />
+        </RigidBody>
+      ) : (
+        <></>
+      )}
+
+      {/* Left hand collider */}
+      {/* <mesh ref={leftHandRef} />
+      <BallCollider args={[0.1]} ref={leftHandColliderRef} /> */}
+
       {/* Character model */}
       <group
         ref={group}
@@ -430,13 +514,14 @@ export default function CharacterModel(props: CharacterModelProps) {
           </group>
           <group name="Empty" position={[0.516, 1.362, 0.801]} />
         </group>
-        <SpriteAnimator
+        {/* <SpriteAnimator
           visible={punchEffectProps.visible}
           scale={punchEffectProps.scale as any}
           position={punchEffectProps.position as any}
           startFrame={punchEffectProps.startFrame}
           loop={true}
           onLoopEnd={() => {
+            console.log("Loop ended");
             setPunchEffectProp((prev) => ({
               ...prev,
               visible: false,
@@ -447,7 +532,7 @@ export default function CharacterModel(props: CharacterModelProps) {
           numberOfFrames={7}
           alphaTest={0.1}
           textureImageURL={"./punchEffect.png"}
-        />
+        /> */}
       </group>
     </Suspense>
   );

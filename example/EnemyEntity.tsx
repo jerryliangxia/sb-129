@@ -156,8 +156,14 @@ export default function Model({ position, ...props }) {
       angularDamping={0.5}
       enabledRotations={[false, false, false]}
       onCollisionEnter={(event) => {
-        if ((event.collider as any)._parent?.userData.type === "shotCube") {
-          (event.collider as any)._parent.userData.type = null;
+        const type = (event.collider as any)._parent?.userData.type;
+        if (type === "shotCube" || type === "clarinet") {
+          if (type === "shotCube") {
+            (event.collider as any)._parent.userData.type = null;
+          } else if (isBeingHit || isDying) {
+            console.log("Stopping early");
+            return;
+          }
           setNumHits(numHits - 1);
           if (numHits === 0) {
             setIsDying(true);
@@ -195,7 +201,7 @@ export default function Model({ position, ...props }) {
             <primitive object={nodes.ShoulderR} />
           </group>
         </group>
-        <SpriteAnimator
+        {/* <SpriteAnimator
           visible={punchEffectProps.visible}
           scale={punchEffectProps.scale as any}
           position={punchEffectProps.position as any}
@@ -213,7 +219,7 @@ export default function Model({ position, ...props }) {
           numberOfFrames={7}
           alphaTest={0.1}
           textureImageURL={"./punchEffect.png"}
-        />
+        /> */}
       </group>
     </RigidBody>
   );
