@@ -1533,15 +1533,34 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       }
     });
 
+    const curAnimation = useGame((state) => state.curAnimation);
+    const setCurAnimation = useGame((state) => state.setCurAnimation);
+    const animationSet = useGame((state) => state.animationSet);
+
+    // const [allowNewJump, setAllowNewJump] = useState(true);
+
+    // useEffect(() => {
+    //   const handleKeyDown = (event) => {
+    //     if (event.code === "Space" && allowNewJump)
+    //   }
+    // })
     return (
       <RigidBody
         colliders={false}
         ref={characterRef}
+        userData={{ type: "character" }}
         position={props.position || [0, 5, 0]}
         friction={props.friction || -0.5}
-        onContactForce={(e) =>
-          bodyContactForce.set(e.totalForce.x, e.totalForce.y, e.totalForce.z)
-        }
+        onContactForce={(e) => {
+          bodyContactForce.set(e.totalForce.x, e.totalForce.y, e.totalForce.z);
+        }}
+        onCollisionEnter={(e) => {
+          if (
+            curAnimation != "Attack20Clarinet" &&
+            e.collider.parent().userData.type == "enemy"
+          )
+            setCurAnimation(animationSet.action3);
+        }}
         onCollisionExit={() => bodyContactForce.set(0, 0, 0)}
         {...props}
       >

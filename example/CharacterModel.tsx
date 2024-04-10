@@ -480,6 +480,8 @@ export default function CharacterModel(props: CharacterModelProps) {
       <BallCollider args={[0.1]} ref={leftHandColliderRef} /> */}
 
       {/* Character model */}
+      {/* Used for dampening the speed of rotation */}
+      <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
       <group
         ref={group}
         {...props}

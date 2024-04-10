@@ -148,6 +148,7 @@ export default function Model({ position, ...props }) {
   return (
     <RigidBody
       ref={body}
+      userData={{ type: "enemy" }}
       colliders={false}
       canSleep={false}
       mass={1.0}
@@ -156,6 +157,14 @@ export default function Model({ position, ...props }) {
       angularDamping={0.5}
       enabledRotations={[false, false, false]}
       onCollisionEnter={(event) => {
+        const impulseMagnitude = 2; // Adjust the magnitude as needed
+        const randomAngle = Math.random() * 2 * Math.PI; // Random angle in radians
+        const impulse = {
+          x: Math.cos(randomAngle) * impulseMagnitude,
+          y: 0, // Assuming you only want to apply the impulse in the X-Z plane
+          z: Math.sin(randomAngle) * impulseMagnitude,
+        };
+        if (verifyLinvel(body)) body.current.applyImpulse(impulse);
         const type = (event.collider as any)._parent?.userData.type;
         if (type === "shotCube" || type === "clarinet") {
           if (type === "shotCube") {

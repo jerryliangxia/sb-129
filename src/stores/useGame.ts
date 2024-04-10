@@ -20,6 +20,11 @@ export const useGame = /* @__PURE__ */ create(
        */
       // Initial animation
       curAnimation: null as string,
+      setCurAnimation: (animation: string) => {
+        set((state) => {
+          return { curAnimation: animation };
+        });
+      },
       animationSet: {} as AnimationSet,
 
       combatMode: "melee" as "melee" | "farRange",
@@ -257,6 +262,7 @@ type State = {
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;
+  setCurAnimation: (animation: string) => void;
   combatMode: "melee" | "farRange";
   switchToMelee: () => void;
   switchToFarRange: () => void;
