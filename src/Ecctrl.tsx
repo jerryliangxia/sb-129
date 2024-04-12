@@ -16,6 +16,7 @@ import {
   type ReactNode,
   forwardRef,
   type RefObject,
+  useState,
 } from "react";
 import * as THREE from "three";
 import { useControls } from "leva";
@@ -154,6 +155,38 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       action3: 1,
       action4: 0,
     };
+
+    const [holdingSpaceBar, setHoldingSpacebar] = useState(false);
+
+    useEffect(() => {
+      const handleKeyDown = (event: any) => {
+        // Check if the spacebar is pressed
+        if (event.code === "Space" && !holdingSpaceBar) {
+          console.log("setting to true - can jump");
+          setHoldingSpacebar(true); // Mark the spacebar as pressed
+          // Initiate jump logic here, if needed
+          jumpAnimation();
+        }
+      };
+
+      const handleKeyUp = (event: any) => {
+        // Check if the spacebar is released
+        if (event.code === "Space") {
+          console.log("setting to false - can't jump");
+          setHoldingSpacebar(false); // Reset the spacebar pressed state
+        }
+      };
+
+      // Add event listeners for keydown and keyup
+      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keyup", handleKeyUp);
+
+      // Cleanup event listeners
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keyup", handleKeyUp);
+      };
+    }, []);
 
     /**
      * Mode setup
@@ -1507,7 +1540,8 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           canJump
         ) {
           idleAnimation();
-        } else if ((jump || button1Pressed) && canJump) {
+        } else if ((jump || button1Pressed) && canJump && !holdingSpaceBar) {
+          console.log("here");
           jumpAnimation();
         } else if (
           canJump &&
@@ -1520,7 +1554,8 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
             gamepadKeys.forward ||
             gamepadKeys.backward ||
             gamepadKeys.leftward ||
-            gamepadKeys.rightward)
+            gamepadKeys.rightward) &&
+          !holdingSpaceBar
         ) {
           run || runState ? runAnimation() : walkAnimation();
         } else if (!canJump) {
@@ -1544,6 +1579,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     //     if (event.code === "Space" && allowNewJump)
     //   }
     // })
+    const getCurPosition = useGame((state) => state.getCurPosition);
     return (
       <RigidBody
         colliders={false}
@@ -1558,8 +1594,29 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           if (
             curAnimation != "Attack20Clarinet" &&
             e.collider.parent().userData.type == "enemy"
-          )
+          ) {
             setCurAnimation(animationSet.action3);
+            // Assuming getCurPosition() returns an array [x, y, z]
+            const currentPosition = new THREE.Vector3(...getCurPosition());
+            // Assuming e.rigidBodyObject.position is a { x: number, y: number, z: number }
+            const enemyPosition = new THREE.Vector3(
+              e.rigidBodyObject.position.x,
+              e.rigidBodyObject.position.y,
+              e.rigidBodyObject.position.z
+            );
+
+            // Subtract the enemy position from the current position
+            const resultVector = currentPosition.sub(enemyPosition);
+
+            console.log(resultVector);
+            // Multiply the resultVector by 10
+            const impulseVector = resultVector.multiplyScalar(5);
+
+            // Apply the impulse to the character's rigidbody
+            if (characterRef.current) {
+              characterRef.current.applyImpulse(impulseVector, true);
+            }
+          }
         }}
         onCollisionExit={() => bodyContactForce.set(0, 0, 0)}
         {...props}
