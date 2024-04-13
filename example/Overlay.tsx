@@ -3,8 +3,8 @@ import { useGame } from "../src/stores/useGame";
 
 export default function Overlay() {
   // Your code here
-  const canvasVisible = useGame((state) => state.canvasVisible);
-  const setCanvasVisible = useGame((state) => state.setCanvasVisible);
+  const overlayVisible = useGame((state) => state.overlayVisible);
+  const setOverlayVisible = useGame((state) => state.setOverlayVisible);
   const isFullScreen = useGame((state) => state.isFullScreen);
   const setIsFullScreen = useGame((state) => state.setIsFullScreen);
   const gameStage = useGame((state) => state.gameStage);
@@ -12,8 +12,8 @@ export default function Overlay() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "Escape" && !canvasVisible) {
-        setCanvasVisible(true);
+      if (event.key === "Escape" && !overlayVisible) {
+        setOverlayVisible(true);
       }
     };
 
@@ -22,11 +22,11 @@ export default function Overlay() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [canvasVisible]);
+  }, [overlayVisible]);
 
   return (
     <>
-      {canvasVisible ? (
+      {overlayVisible ? (
         <div
           id="overlay"
           style={{
@@ -48,7 +48,7 @@ export default function Overlay() {
               if (isFullScreen) {
                 document.body.requestFullscreen();
               }
-              setCanvasVisible(!canvasVisible);
+              setOverlayVisible(!overlayVisible);
               document.body.requestPointerLock();
               setGameStage(gameStage + 1);
               const canvas = document.querySelector("canvas");

@@ -6,9 +6,9 @@ export const useGame = /* @__PURE__ */ create(
   /* @__PURE__ */ subscribeWithSelector<State>((set, get) => {
     return {
       // Canvas
-      canvasVisible: true,
-      setCanvasVisible: (visible: boolean) => {
-        set(() => ({ canvasVisible: visible }));
+      overlayVisible: true,
+      setOverlayVisible(visible) {
+        set(() => ({ overlayVisible: visible }));
       },
 
       isFullScreen: false,
@@ -300,8 +300,8 @@ export type AnimationSet = {
 };
 
 type State = {
-  canvasVisible: boolean;
-  setCanvasVisible: (visible: boolean) => void;
+  overlayVisible: boolean;
+  setOverlayVisible: (visible: boolean) => void;
   isFullScreen: boolean;
   setIsFullScreen: (isFullScreen: boolean) => void;
   gameStage: number;
