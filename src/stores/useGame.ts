@@ -72,7 +72,6 @@ export const useGame = /* @__PURE__ */ create(
        * Switch to melee combat mode
        */
       switchToMelee: () => {
-        if (get().curHealth <= 0) return;
         set(() => ({ combatMode: "melee" }));
       },
 
@@ -80,7 +79,6 @@ export const useGame = /* @__PURE__ */ create(
        * Switch to far range combat mode
        */
       switchToFarRange: () => {
-        if (get().curHealth <= 0) return;
         set(() => ({ combatMode: "farRange" }));
       },
 

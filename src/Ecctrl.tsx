@@ -1614,7 +1614,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
               if (characterRef.current) {
                 characterRef.current.applyImpulse(impulseVector, true);
                 setCurHealth(curHealth - 1);
-                console.log(curHealth);
               }
             }
           }
