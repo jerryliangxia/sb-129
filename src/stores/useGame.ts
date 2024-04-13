@@ -72,6 +72,7 @@ export const useGame = /* @__PURE__ */ create(
        * Switch to melee combat mode
        */
       switchToMelee: () => {
+        if (get().curHealth <= 0) return;
         set(() => ({ combatMode: "melee" }));
       },
 
@@ -79,6 +80,7 @@ export const useGame = /* @__PURE__ */ create(
        * Switch to far range combat mode
        */
       switchToFarRange: () => {
+        if (get().curHealth <= 0) return;
         set(() => ({ combatMode: "farRange" }));
       },
 
@@ -162,6 +164,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action1: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle &&
@@ -174,6 +177,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action2: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle &&
@@ -186,6 +190,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action3: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (state.curAnimation === state.animationSet.idle) {
             return { curAnimation: state.animationSet.action3 };
@@ -195,6 +200,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action4: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle ||

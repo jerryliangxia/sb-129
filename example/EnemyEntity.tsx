@@ -22,6 +22,7 @@ const MAX_LINVEL = 2;
 const ROTATION_THRESHOLD = Math.PI;
 const IMPULSE_FACTOR = 50.0;
 const ATTACK_THRESHOLD = 1.0;
+const KNOCKBACK_MAGNITUDE = 2;
 
 function verifyLinvel(body) {
   const linvel = body?.current?.linvel();
@@ -157,12 +158,12 @@ export default function Model({ position, ...props }) {
       angularDamping={0.5}
       enabledRotations={[false, false, false]}
       onCollisionEnter={(event) => {
-        const impulseMagnitude = 2; // Adjust the magnitude as needed
-        const randomAngle = Math.random() * 2 * Math.PI; // Random angle in radians
+        // Enemies experience a knockback as well so that the player isn't constantly hit
+        const randomAngle = Math.random() * 2 * Math.PI;
         const impulse = {
-          x: Math.cos(randomAngle) * impulseMagnitude,
-          y: 0, // Assuming you only want to apply the impulse in the X-Z plane
-          z: Math.sin(randomAngle) * impulseMagnitude,
+          x: Math.cos(randomAngle) * KNOCKBACK_MAGNITUDE,
+          y: 0,
+          z: Math.sin(randomAngle) * KNOCKBACK_MAGNITUDE,
         };
         if (verifyLinvel(body)) body.current.applyImpulse(impulse);
         const type = (event.collider as any)._parent?.userData.type;

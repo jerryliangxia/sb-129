@@ -3,7 +3,11 @@ import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
 import { useFrame } from "@react-three/fiber";
-import { CapsuleCollider, RigidBody } from "@react-three/rapier";
+import {
+  CapsuleCollider,
+  RigidBody,
+  RapierCollider,
+} from "@react-three/rapier";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 export default function CharacterModel(props: CharacterModelProps) {
@@ -82,8 +86,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     (state) => state.initializeAnimationSet
   );
 
-  let clarinet: THREE.Object3D = null;
-  let squidGun: THREE.Object3D = null;
+  let clarinet: THREE.Object3D | null = null;
+  let squidGun: THREE.Object3D | null = null;
 
   // Rename your character animations here
   let animationSet = {
@@ -174,19 +178,17 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Health - handle deaths
   useEffect(() => {
     if (curHealth <= 0) {
-      const deathAction = actions[animationSet.action5];
-      if (deathAction) {
-        deathAction.reset().play();
-        deathAction.clampWhenFinished = true; // Ensure the animation stops at the last frame
-        deathAction.setLoop(THREE.LoopOnce, 1); // Play it only once
+      const fallAction = actions[animationSet.action5];
+      if (fallAction) {
+        fallAction.reset().play();
+        fallAction.clampWhenFinished = true;
+        fallAction.setLoop(THREE.LoopOnce, 1);
 
-        // Listen for the end of the death animation
-        deathAction.getMixer().addEventListener("finished", () => {
-          // Step 4: Transition to the idle laying down animation
-          const idleLayingDownAction = actions[animationSet.action6];
-          if (idleLayingDownAction) {
-            idleLayingDownAction.reset().play();
-            idleLayingDownAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
+        fallAction.getMixer().addEventListener("finished", () => {
+          const idleDeathAction = actions[animationSet.action6];
+          if (idleDeathAction) {
+            idleDeathAction.reset().play();
+            idleDeathAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
           }
         });
       }
@@ -195,6 +197,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   // Initialize animation set
   useEffect(() => {
+    if (curHealth <= 0) return;
     // Prepare mug model for cheer action
     if (combatMode === "melee") {
       clarinet.visible = true;
@@ -325,15 +328,12 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
   }, [actions, initializeAnimationSet]);
 
-  const rightHandRef = useRef<THREE.Mesh>();
-  const rightHandColliderRef = useRef<RapierCollider>();
-  const leftHandRef = useRef<THREE.Mesh>();
-  const leftHandColliderRef = useRef<RapierCollider>();
+  const rightHandRef = useRef<THREE.Mesh>(null);
+  const rightHandColliderRef = useRef<RapierCollider | null>(null);
   const rightHandPos = useMemo(() => new THREE.Vector3(), []);
-  const leftHandPos = useMemo(() => new THREE.Vector3(), []);
   const bodyPos = useMemo(() => new THREE.Vector3(), []);
   const bodyRot = useMemo(() => new THREE.Quaternion(), []);
-  let rightHand: THREE.Object3D = null;
+  let rightHand: THREE.Object3D | null = null;
 
   useEffect(() => {
     group?.current?.traverse((obj) => {
@@ -371,7 +371,7 @@ export default function CharacterModel(props: CharacterModelProps) {
             .applyQuaternion(bodyRot.conjugate());
         }
         rightHandColliderRef?.current?.setTranslationWrtParent(
-          rightHandRef?.current?.position
+          rightHandRef?.current?.position || new THREE.Vector3()
         );
       }
     }
@@ -498,7 +498,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       )}
 
       {/* Character model */}
-      {/* Used for dampening the speed of rotation */}
+      {/* Used as a spring for the speed of rotation */}
       {curHealth > 0 && (
         <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
       )}
