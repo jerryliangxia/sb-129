@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
 
-export default function Overlay() {
+export default function Overlay(props) {
   // Your code here
   const overlayVisible = useGame((state) => state.overlayVisible);
   const setOverlayVisible = useGame((state) => state.setOverlayVisible);
@@ -9,6 +9,28 @@ export default function Overlay() {
   const setIsFullScreen = useGame((state) => state.setIsFullScreen);
   const gameStage = useGame((state) => state.gameStage);
   const setGameStage = useGame((state) => state.setGameStage);
+
+  const handleClick = () => {
+    if (isFullScreen) {
+      document.body.requestFullscreen();
+    }
+    setGameStage(gameStage + 1);
+    setOverlayVisible(!overlayVisible);
+    const canvas = document.querySelector("canvas");
+    const event = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    canvas?.dispatchEvent(event);
+    if (isFullScreen) {
+      setTimeout(() => {
+        document.body.requestPointerLock();
+      }, 100);
+    } else {
+      document.body.requestPointerLock();
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -26,7 +48,7 @@ export default function Overlay() {
 
   return (
     <>
-      {overlayVisible ? (
+      {overlayVisible && (
         <div
           id="overlay"
           style={{
@@ -43,25 +65,7 @@ export default function Overlay() {
             alignItems: "center",
           }}
         >
-          <button
-            onClick={() => {
-              if (isFullScreen) {
-                document.body.requestFullscreen();
-              }
-              setOverlayVisible(!overlayVisible);
-              document.body.requestPointerLock();
-              setGameStage(gameStage + 1);
-              const canvas = document.querySelector("canvas");
-              const event = new MouseEvent("click", {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-              });
-              canvas?.dispatchEvent(event);
-            }}
-          >
-            Click here
-          </button>
+          <button onClick={() => handleClick()}>Enter</button>
           <button
             onClick={() => {
               setIsFullScreen(!isFullScreen);
@@ -70,8 +74,6 @@ export default function Overlay() {
             {isFullScreen ? "Is Full Screen" : "No Full Screen"}
           </button>
         </div>
-      ) : (
-        <></>
       )}
     </>
   );
