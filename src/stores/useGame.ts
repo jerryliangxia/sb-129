@@ -28,6 +28,12 @@ export const useGame = /* @__PURE__ */ create(
       animationSet: {} as AnimationSet,
 
       combatMode: "melee" as "melee" | "farRange",
+      curHealth: 10,
+      setCurHealth: (health: number) => {
+        set((state) => {
+          return { ...state, curHealth: health };
+        });
+      },
 
       curPosition: null as THREE.Vector3,
       curDirection: null as THREE.Vector3,
@@ -201,6 +207,18 @@ export const useGame = /* @__PURE__ */ create(
         });
       },
 
+      action5: () => {
+        set((state) => {
+          return { curAnimation: state.animationSet.action5 };
+        });
+      },
+
+      action6: () => {
+        set((state) => {
+          return { curAnimation: state.animationSet.action6 };
+        });
+      },
+
       /**
        * Additional animations
        */
@@ -256,6 +274,8 @@ export type AnimationSet = {
   action2?: string;
   action3?: string;
   action4?: string;
+  action5?: string;
+  action6?: string;
 };
 
 type State = {
@@ -267,6 +287,8 @@ type State = {
   switchToMelee: () => void;
   switchToFarRange: () => void;
   getCombatMode: () => "melee" | "farRange";
+  curHealth: number;
+  setCurHealth: (health: number) => void;
   curPosition: THREE.Vector3;
   curDirection: THREE.Vector3;
   setCurPosition: (position: THREE.Vector3) => void;

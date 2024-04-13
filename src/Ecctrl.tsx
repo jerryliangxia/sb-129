@@ -140,6 +140,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     }: EcctrlProps,
     ref
   ) => {
+    const curHealth = useGame((state) => state.curHealth);
     const characterRef =
       (ref as RefObject<RapierRigidBody>) || useRef<RapierRigidBody>();
     const characterModelRef = useRef<THREE.Group>();
@@ -161,10 +162,8 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     useEffect(() => {
       const handleKeyDown = (event: any) => {
         // Check if the spacebar is pressed
-        if (event.code === "Space" && !holdingSpaceBar) {
-          console.log("setting to true - can jump");
-          setHoldingSpacebar(true); // Mark the spacebar as pressed
-          // Initiate jump logic here, if needed
+        if (event.code === "Space" && !holdingSpaceBar && curHealth > 0) {
+          setHoldingSpacebar(true);
           jumpAnimation();
         }
       };
@@ -172,8 +171,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       const handleKeyUp = (event: any) => {
         // Check if the spacebar is released
         if (event.code === "Space") {
-          console.log("setting to false - can't jump");
-          setHoldingSpacebar(false); // Reset the spacebar pressed state
+          setHoldingSpacebar(false);
         }
       };
 
@@ -1161,14 +1159,15 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
 
       // Move character to the moving direction
       if (
-        forward ||
-        backward ||
-        leftward ||
-        rightward ||
-        gamepadKeys.forward ||
-        gamepadKeys.backward ||
-        gamepadKeys.leftward ||
-        gamepadKeys.rightward
+        (forward ||
+          backward ||
+          leftward ||
+          rightward ||
+          gamepadKeys.forward ||
+          gamepadKeys.backward ||
+          gamepadKeys.leftward ||
+          gamepadKeys.rightward) &&
+        curHealth > 0
       )
         moveCharacter(delta, run, slopeAngle, movingObjectVelocity);
 
@@ -1177,7 +1176,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         currentVel.copy(characterRef.current.linvel() as THREE.Vector3);
 
       // Jump impulse
-      if ((jump || button1Pressed) && canJump) {
+      if ((jump || button1Pressed) && canJump && curHealth > 0) {
         // characterRef.current.applyImpulse(jumpDirection.set(0, 0.5, 0), true);
         jumpVelocityVec.set(
           currentVel.x,
@@ -1204,11 +1203,13 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       }
 
       // Rotate character Indicator
-      modelQuat.setFromEuler(modelEuler);
-      characterModelIndicator.quaternion.rotateTowards(
-        modelQuat,
-        delta * turnSpeed
-      );
+      if (curHealth > 0) {
+        modelQuat.setFromEuler(modelEuler);
+        characterModelIndicator.quaternion.rotateTowards(
+          modelQuat,
+          delta * turnSpeed
+        );
+      }
 
       // If autobalance is off, rotate character model itself
       if (!autoBalance) {
@@ -1524,6 +1525,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
        * Apply all the animations
        */
       if (animated) {
+        if (curHealth <= 0) return;
         if (
           !forward &&
           !backward &&
@@ -1541,7 +1543,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         ) {
           idleAnimation();
         } else if ((jump || button1Pressed) && canJump && !holdingSpaceBar) {
-          console.log("here");
           jumpAnimation();
         } else if (
           canJump &&
@@ -1571,15 +1572,9 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     const curAnimation = useGame((state) => state.curAnimation);
     const setCurAnimation = useGame((state) => state.setCurAnimation);
     const animationSet = useGame((state) => state.animationSet);
-
-    // const [allowNewJump, setAllowNewJump] = useState(true);
-
-    // useEffect(() => {
-    //   const handleKeyDown = (event) => {
-    //     if (event.code === "Space" && allowNewJump)
-    //   }
-    // })
     const getCurPosition = useGame((state) => state.getCurPosition);
+    const setCurHealth = useGame((state) => state.setCurHealth);
+
     return (
       <RigidBody
         colliders={false}
@@ -1588,33 +1583,39 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         position={props.position || [0, 5, 0]}
         friction={props.friction || -0.5}
         onContactForce={(e) => {
-          bodyContactForce.set(e.totalForce.x, e.totalForce.y, e.totalForce.z);
+          if (curHealth > 0) {
+            bodyContactForce.set(
+              e.totalForce.x,
+              e.totalForce.y,
+              e.totalForce.z
+            );
+          }
         }}
         onCollisionEnter={(e) => {
           if (
             curAnimation != "Attack20Clarinet" &&
             e.collider.parent().userData.type == "enemy"
           ) {
-            setCurAnimation(animationSet.action3);
-            // Assuming getCurPosition() returns an array [x, y, z]
-            const currentPosition = new THREE.Vector3(...getCurPosition());
-            // Assuming e.rigidBodyObject.position is a { x: number, y: number, z: number }
-            const enemyPosition = new THREE.Vector3(
-              e.rigidBodyObject.position.x,
-              e.rigidBodyObject.position.y,
-              e.rigidBodyObject.position.z
-            );
+            if (curHealth > 0) {
+              setCurAnimation(animationSet.action3);
+              const currentPosition = new THREE.Vector3(...getCurPosition());
+              const enemyPosition = new THREE.Vector3(
+                e.rigidBodyObject.position.x,
+                e.rigidBodyObject.position.y,
+                e.rigidBodyObject.position.z
+              );
 
-            // Subtract the enemy position from the current position
-            const resultVector = currentPosition.sub(enemyPosition);
+              // Subtract the enemy position from the current position
+              const resultVector = currentPosition.sub(enemyPosition);
 
-            console.log(resultVector);
-            // Multiply the resultVector by 10
-            const impulseVector = resultVector.multiplyScalar(5);
+              const impulseVector = resultVector.multiplyScalar(5);
 
-            // Apply the impulse to the character's rigidbody
-            if (characterRef.current) {
-              characterRef.current.applyImpulse(impulseVector, true);
+              // Apply the impulse to the character's rigidbody
+              if (characterRef.current) {
+                characterRef.current.applyImpulse(impulseVector, true);
+                setCurHealth(curHealth - 1);
+                console.log(curHealth);
+              }
             }
           }
         }}

@@ -170,7 +170,6 @@ export default function Model({ position, ...props }) {
           if (type === "shotCube") {
             (event.collider as any)._parent.userData.type = null;
           } else if (isBeingHit || isDying) {
-            console.log("Stopping early");
             return;
           }
           setNumHits(numHits - 1);
