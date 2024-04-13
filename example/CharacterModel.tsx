@@ -190,6 +190,7 @@ export default function CharacterModel(props: CharacterModelProps) {
             idleDeathAction.reset().play();
             idleDeathAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
           }
+          document.exitPointerLock();
         });
       }
     }

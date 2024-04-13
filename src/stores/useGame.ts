@@ -5,6 +5,23 @@ import { subscribeWithSelector } from "zustand/middleware";
 export const useGame = /* @__PURE__ */ create(
   /* @__PURE__ */ subscribeWithSelector<State>((set, get) => {
     return {
+      // Canvas
+      overlayVisible: true,
+      setOverlayVisible(visible) {
+        set(() => ({ overlayVisible: visible }));
+      },
+
+      isFullScreen: false,
+      setIsFullScreen: (isFullScreen: boolean) => {
+        set(() => ({ isFullScreen: isFullScreen }));
+      },
+
+      // Game Stages
+      gameStage: 0 as number,
+      setGameStage: (stage: number) => {
+        set(() => ({ gameStage: stage }));
+      },
+
       /**
        * Point to move point
        */
@@ -283,6 +300,12 @@ export type AnimationSet = {
 };
 
 type State = {
+  overlayVisible: boolean;
+  setOverlayVisible: (visible: boolean) => void;
+  isFullScreen: boolean;
+  setIsFullScreen: (isFullScreen: boolean) => void;
+  gameStage: number;
+  setGameStage: (stage: number) => void;
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;

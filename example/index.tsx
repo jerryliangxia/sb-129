@@ -5,26 +5,23 @@ import Experience from "../example/Experience";
 import { Leva } from "leva";
 import { EcctrlJoystick } from "../src/EcctrlJoystick";
 import { Suspense, useEffect, useState } from "react";
+import Overlay from "./Overlay";
+import { useGame } from "../src/stores/useGame";
 
 const root = ReactDOM.createRoot(document.querySelector("#root"));
 
 const EcctrlJoystickControls = () => {
-  const [isTouchScreen, setIsTouchScreen] = useState(false)
+  const [isTouchScreen, setIsTouchScreen] = useState(false);
   useEffect(() => {
     // Check if using a touch control device, show/hide joystick
-    if (('ontouchstart' in window) ||
-      (navigator.maxTouchPoints > 0)) {
-      setIsTouchScreen(true)
+    if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+      setIsTouchScreen(true);
     } else {
-      setIsTouchScreen(false)
+      setIsTouchScreen(false);
     }
-  }, [])
-  return (
-    <>
-      {isTouchScreen && <EcctrlJoystick buttonNumber={5} />}
-    </>
-  )
-}
+  }, []);
+  return <>{isTouchScreen && <EcctrlJoystick buttonNumber={5} />}</>;
+};
 
 root.render(
   <>
@@ -38,8 +35,10 @@ root.render(
         far: 1000,
       }}
       onPointerDown={(e) => {
-        if (e.pointerType === 'mouse') {
-          (e.target as HTMLCanvasElement).requestPointerLock()
+        if (e.pointerType === "mouse") {
+          e.stopPropagation();
+          if (document.getElementById("overlay")) return;
+          (e.target as HTMLCanvasElement).requestPointerLock();
         }
       }}
     >
@@ -47,5 +46,6 @@ root.render(
         <Experience />
       </Suspense>
     </Canvas>
+    <Overlay />
   </>
 );

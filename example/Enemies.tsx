@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect, Suspense } from "react";
 import EnemyEntity from "./EnemyEntity";
+import { useGame } from "../src/stores/useGame";
 
 function Enemies() {
   const [enemyMesh, setEnemyMesh] = useState<React.ReactElement[]>([]);
   const enemyRef = useRef<mesh>();
+  const gameStage = useGame((state) => state.gameStage);
 
   const createEnemies = () => {
     const enemies: React.ReactElement[] = [];
@@ -20,8 +22,10 @@ function Enemies() {
   };
 
   useEffect(() => {
-    createEnemies();
-  }, []);
+    if (gameStage === 1) {
+      createEnemies();
+    }
+  }, [gameStage]);
 
   return (
     <>
