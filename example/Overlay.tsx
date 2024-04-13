@@ -1,5 +1,8 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
+import { Flex } from "@radix-ui/themes";
+import { StyledButton } from "./ui-components/StyledButton";
+import { StyledSwitch } from "./ui-components/StyledSwitch";
 
 export default function Overlay() {
   // Your code here
@@ -9,6 +12,29 @@ export default function Overlay() {
   const setIsFullScreen = useGame((state) => state.setIsFullScreen);
   const gameStage = useGame((state) => state.gameStage);
   const setGameStage = useGame((state) => state.setGameStage);
+
+  const handleClick = () => {
+    if (isFullScreen) {
+      document.body.requestFullscreen();
+    }
+    setGameStage(gameStage + 1);
+    setOverlayVisible(!overlayVisible);
+    const canvas = document.querySelector("canvas");
+    const event = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    canvas?.dispatchEvent(event);
+    if (isFullScreen) {
+      // Full screen has to wait before pointer lock
+      setTimeout(() => {
+        document.body.requestPointerLock();
+      }, 100);
+    } else {
+      document.body.requestPointerLock();
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -26,16 +52,20 @@ export default function Overlay() {
 
   return (
     <>
-      {overlayVisible ? (
-        <div
+      {overlayVisible && (
+        <Flex
           id="overlay"
+          align="center"
+          direction="column"
+          gap="3"
           style={{
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "200px",
-            height: "100px",
+            width: "30%",
+            height: "30%",
+            borderRadius: "10px",
             backgroundColor: "rgba(0,0,0,0.5)",
             color: "white",
             display: "flex",
@@ -43,35 +73,17 @@ export default function Overlay() {
             alignItems: "center",
           }}
         >
-          <button
-            onClick={() => {
-              if (isFullScreen) {
-                document.body.requestFullscreen();
-              }
-              setOverlayVisible(!overlayVisible);
-              document.body.requestPointerLock();
-              setGameStage(gameStage + 1);
-              const canvas = document.querySelector("canvas");
-              const event = new MouseEvent("click", {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-              });
-              canvas?.dispatchEvent(event);
-            }}
-          >
-            Click here
-          </button>
-          <button
-            onClick={() => {
-              setIsFullScreen(!isFullScreen);
-            }}
-          >
-            {isFullScreen ? "Is Full Screen" : "No Full Screen"}
-          </button>
-        </div>
-      ) : (
-        <></>
+          <img
+            src="/sb-129-hd.png"
+            alt="Logo"
+            style={{ maxWidth: "80%", maxHeight: "100%", objectFit: "contain" }}
+          />
+          <StyledButton onClick={() => handleClick()}>Enter</StyledButton>
+          <StyledSwitch
+            checked={isFullScreen}
+            onCheckedChange={setIsFullScreen}
+          />
+        </Flex>
       )}
     </>
   );
