@@ -20,9 +20,20 @@ export const useGame = /* @__PURE__ */ create(
        */
       // Initial animation
       curAnimation: null as string,
+      setCurAnimation: (animation: string) => {
+        set((state) => {
+          return { curAnimation: animation };
+        });
+      },
       animationSet: {} as AnimationSet,
 
       combatMode: "melee" as "melee" | "farRange",
+      curHealth: 10,
+      setCurHealth: (health: number) => {
+        set((state) => {
+          return { ...state, curHealth: health };
+        });
+      },
 
       curPosition: null as THREE.Vector3,
       curDirection: null as THREE.Vector3,
@@ -151,6 +162,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action1: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle &&
@@ -163,6 +175,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action2: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle &&
@@ -175,6 +188,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action3: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (state.curAnimation === state.animationSet.idle) {
             return { curAnimation: state.animationSet.action3 };
@@ -184,6 +198,7 @@ export const useGame = /* @__PURE__ */ create(
       },
 
       action4: () => {
+        if (get().curHealth <= 0) return;
         set((state) => {
           if (
             state.curAnimation === state.animationSet.idle ||
@@ -193,6 +208,18 @@ export const useGame = /* @__PURE__ */ create(
             return { curAnimation: state.animationSet.action4 };
           }
           return {};
+        });
+      },
+
+      action5: () => {
+        set((state) => {
+          return { curAnimation: state.animationSet.action5 };
+        });
+      },
+
+      action6: () => {
+        set((state) => {
+          return { curAnimation: state.animationSet.action6 };
         });
       },
 
@@ -251,16 +278,21 @@ export type AnimationSet = {
   action2?: string;
   action3?: string;
   action4?: string;
+  action5?: string;
+  action6?: string;
 };
 
 type State = {
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;
+  setCurAnimation: (animation: string) => void;
   combatMode: "melee" | "farRange";
   switchToMelee: () => void;
   switchToFarRange: () => void;
   getCombatMode: () => "melee" | "farRange";
+  curHealth: number;
+  setCurHealth: (health: number) => void;
   curPosition: THREE.Vector3;
   curDirection: THREE.Vector3;
   setCurPosition: (position: THREE.Vector3) => void;

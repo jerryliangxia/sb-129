@@ -22,6 +22,7 @@ const MAX_LINVEL = 2;
 const ROTATION_THRESHOLD = Math.PI;
 const IMPULSE_FACTOR = 50.0;
 const ATTACK_THRESHOLD = 1.0;
+const KNOCKBACK_MAGNITUDE = 2;
 
 function verifyLinvel(body) {
   const linvel = body?.current?.linvel();
@@ -148,6 +149,7 @@ export default function Model({ position, ...props }) {
   return (
     <RigidBody
       ref={body}
+      userData={{ type: "enemy" }}
       colliders={false}
       canSleep={false}
       mass={1.0}
@@ -156,12 +158,19 @@ export default function Model({ position, ...props }) {
       angularDamping={0.5}
       enabledRotations={[false, false, false]}
       onCollisionEnter={(event) => {
+        // Enemies experience a knockback as well so that the player isn't constantly hit
+        const randomAngle = Math.random() * 2 * Math.PI;
+        const impulse = {
+          x: Math.cos(randomAngle) * KNOCKBACK_MAGNITUDE,
+          y: 0,
+          z: Math.sin(randomAngle) * KNOCKBACK_MAGNITUDE,
+        };
+        if (verifyLinvel(body)) body.current.applyImpulse(impulse);
         const type = (event.collider as any)._parent?.userData.type;
         if (type === "shotCube" || type === "clarinet") {
           if (type === "shotCube") {
             (event.collider as any)._parent.userData.type = null;
           } else if (isBeingHit || isDying) {
-            console.log("Stopping early");
             return;
           }
           setNumHits(numHits - 1);

@@ -3,14 +3,18 @@ import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
 import { useFrame } from "@react-three/fiber";
-import { BallCollider, CapsuleCollider, RigidBody } from "@react-three/rapier";
+import {
+  CapsuleCollider,
+  RigidBody,
+  RapierCollider,
+} from "@react-three/rapier";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squid_try9.glb"
+    "/squid_try10.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -76,13 +80,14 @@ export default function CharacterModel(props: CharacterModelProps) {
   const setCurPosition = useGame((state) => state.setCurPosition);
   const setCurDirection = useGame((state) => state.setCurDirection);
   const combatMode = useGame((state) => state.combatMode);
+  const curHealth = useGame((state) => state.curHealth);
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
   );
 
-  let clarinet: THREE.Object3D = null;
-  let squidGun: THREE.Object3D = null;
+  let clarinet: THREE.Object3D | null = null;
+  let squidGun: THREE.Object3D | null = null;
 
   // Rename your character animations here
   let animationSet = {
@@ -97,6 +102,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     action2: "Jump_Idle",
     action3: "Jump_Land",
     action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
+    action5: "FallOver",
+    action6: "IdleDeath",
   };
 
   useFrame((state, delta) => {
@@ -168,8 +175,29 @@ export default function CharacterModel(props: CharacterModelProps) {
     });
   });
 
+  // Health - handle deaths
+  useEffect(() => {
+    if (curHealth <= 0) {
+      const fallAction = actions[animationSet.action5];
+      if (fallAction) {
+        fallAction.reset().play();
+        fallAction.clampWhenFinished = true;
+        fallAction.setLoop(THREE.LoopOnce, 1);
+
+        fallAction.getMixer().addEventListener("finished", () => {
+          const idleDeathAction = actions[animationSet.action6];
+          if (idleDeathAction) {
+            idleDeathAction.reset().play();
+            idleDeathAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
+          }
+        });
+      }
+    }
+  }, [curHealth]);
+
   // Initialize animation set
   useEffect(() => {
+    if (curHealth <= 0) return;
     // Prepare mug model for cheer action
     if (combatMode === "melee") {
       clarinet.visible = true;
@@ -300,23 +328,18 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
   }, [actions, initializeAnimationSet]);
 
-  const rightHandRef = useRef<THREE.Mesh>();
-  const rightHandColliderRef = useRef<RapierCollider>();
-  const leftHandRef = useRef<THREE.Mesh>();
-  const leftHandColliderRef = useRef<RapierCollider>();
+  const rightHandRef = useRef<THREE.Mesh>(null);
+  const rightHandColliderRef = useRef<RapierCollider | null>(null);
   const rightHandPos = useMemo(() => new THREE.Vector3(), []);
-  const leftHandPos = useMemo(() => new THREE.Vector3(), []);
   const bodyPos = useMemo(() => new THREE.Vector3(), []);
   const bodyRot = useMemo(() => new THREE.Quaternion(), []);
-  let rightHand: THREE.Object3D = null;
-  let leftHand: THREE.Object3D = null;
+  let rightHand: THREE.Object3D | null = null;
 
   useEffect(() => {
     group?.current?.traverse((obj) => {
       // Prepare both hands bone object
       if (obj instanceof THREE.Bone) {
         if (obj.name === "HandTopR") rightHand = obj;
-        if (obj.name === "HandTopL") leftHand = obj;
       }
     });
   });
@@ -348,7 +371,7 @@ export default function CharacterModel(props: CharacterModelProps) {
             .applyQuaternion(bodyRot.conjugate());
         }
         rightHandColliderRef?.current?.setTranslationWrtParent(
-          rightHandRef?.current?.position
+          rightHandRef?.current?.position || new THREE.Vector3()
         );
       }
     }
@@ -459,7 +482,6 @@ export default function CharacterModel(props: CharacterModelProps) {
             rotation={[Math.PI / 2, 0, 0]}
             ref={rightHandColliderRef}
             onCollisionEnter={(e) => {
-              console.log(e);
               if (curAnimation === animationSet.action4) {
                 // Play punch effect
                 setPunchEffectProp((prev) => ({
@@ -475,17 +497,18 @@ export default function CharacterModel(props: CharacterModelProps) {
         <></>
       )}
 
-      {/* Left hand collider */}
-      {/* <mesh ref={leftHandRef} />
-      <BallCollider args={[0.1]} ref={leftHandColliderRef} /> */}
-
       {/* Character model */}
+      {/* Used as a spring for the speed of rotation */}
+      {curHealth > 0 && (
+        <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
+      )}
       <group
         ref={group}
         {...props}
+        rotation={[curHealth <= 0 ? -0.15 * Math.PI : 0, 0, 0]}
         dispose={null}
         scale={0.4}
-        position-y={-0.9}
+        position-y={curHealth > 0 ? -0.9 : -1.1}
       >
         <group name="Scene">
           <group name="Armature" position={[0, 1.422, 0]} scale={0.762}>
