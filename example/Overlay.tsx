@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
-import * as SwitchPrimitive from "@radix-ui/react-switch";
-import { Flex, Text, Button } from "@radix-ui/themes";
-import { PSButton } from "./ui-components/Button";
+import { Flex } from "@radix-ui/themes";
+import { StyledButton } from "./ui-components/StyledButton";
+import { StyledSwitch } from "./ui-components/StyledSwitch";
 
 export default function Overlay() {
   // Your code here
@@ -35,43 +35,6 @@ export default function Overlay() {
       document.body.requestPointerLock();
     }
   };
-
-  function ToggleFullscreen() {
-    return (
-      <Flex direction="row" gap="2" align="center">
-        <SwitchPrimitive.Root
-          className="switch-root"
-          checked={isFullScreen}
-          onCheckedChange={setIsFullScreen}
-          style={{
-            backgroundColor: isFullScreen ? "#35C7D2" : "transparent",
-            borderRadius: "9999px",
-            width: "42px",
-            height: "25px",
-            position: "relative",
-          }}
-        >
-          <SwitchPrimitive.Thumb
-            className="switch-thumb"
-            style={{
-              display: "block",
-              width: "21px",
-              height: "21px",
-              backgroundColor: "#fff",
-              borderRadius: "9999px",
-              transition: "transform 100ms",
-              transform: isFullScreen
-                ? "translateX(11px) translateY(-1px)"
-                : "translateX(-6px) translateY(-1px)",
-            }}
-          />
-        </SwitchPrimitive.Root>
-        <Text style={{ color: "white" }} size="1">
-          Fullscreen
-        </Text>
-      </Flex>
-    );
-  }
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -115,8 +78,11 @@ export default function Overlay() {
             alt="Logo"
             style={{ maxWidth: "80%", maxHeight: "100%", objectFit: "contain" }}
           />
-          <PSButton onClick={() => handleClick()}>Enter</PSButton>
-          <ToggleFullscreen />
+          <StyledButton onClick={() => handleClick()}>Enter</StyledButton>
+          <StyledSwitch
+            checked={isFullScreen}
+            onCheckedChange={setIsFullScreen}
+          />
         </Flex>
       )}
     </>

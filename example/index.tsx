@@ -28,7 +28,6 @@ const EcctrlJoystickControls = () => {
 root.render(
   <>
     <Theme
-      className="theme"
       style={{
         background:
           "linear-gradient(0deg, rgba(28, 117, 233, 1) 0%, rgba(91, 204, 219, 1) 100%)",

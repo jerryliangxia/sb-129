@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Text } from "@radix-ui/themes";
 
-export const PSButton = (props: any) => {
+export const StyledButton = (props: any) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const baseColor = "#35C7D2";
