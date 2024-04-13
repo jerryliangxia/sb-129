@@ -6,11 +6,11 @@ body,
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgb(253, 228, 255);
+  background: rgb(91, 204, 219);
   background: linear-gradient(
     0deg,
-    rgba(253, 228, 255, 1) 0%,
-    rgba(124, 156, 254, 1) 100%
+    rgba(28, 117, 233, 1) 0%,
+    rgba(91, 204, 219, 1) 100%
   );
 }
 
