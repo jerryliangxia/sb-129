@@ -22,6 +22,43 @@ export const useGame = /* @__PURE__ */ create(
         set(() => ({ gameStage: stage }));
       },
 
+      // Enemies
+      enemies: [],
+      addEnemy: (enemy: any) => {
+        set((state) => ({ enemies: [...state.enemies, enemy] }));
+      },
+      removeEnemy: (enemy: any) => {
+        set((state) => ({ enemies: state.enemies.filter((e) => e !== enemy) }));
+      },
+      setEnemies: (enemies: any) => {
+        set(() => ({ enemies: enemies }));
+        console.log(enemies);
+      },
+      setEnemyAnimation: (enemyId: number, animation: number) => {
+        set((state) => ({
+          enemies: state.enemies.map((enemy) =>
+            enemy.id === enemyId ? { ...enemy, animation } : enemy
+          ),
+        }));
+      },
+      setEnemyPosition: (enemyId: number, position: THREE.Vector3) => {
+        set((state) => ({
+          enemies: state.enemies.map((enemy) =>
+            enemy.id === enemyId ? { ...enemy, position } : enemy
+          ),
+        }));
+      },
+      setEnemyHealth: (enemyId: number, health: number) => {
+        set((state) => ({
+          enemies: state.enemies.map((enemy) =>
+            enemy.id === enemyId ? { ...enemy, health } : enemy
+          ),
+        }));
+      },
+      getEnemyHealth: (enemyId: number) => {
+        return get().enemies.find((enemy) => enemy.id === enemyId)?.health;
+      },
+
       /**
        * Point to move point
        */
@@ -306,6 +343,14 @@ type State = {
   setIsFullScreen: (isFullScreen: boolean) => void;
   gameStage: number;
   setGameStage: (stage: number) => void;
+  enemies: any[];
+  addEnemy: (enemy: any) => void;
+  removeEnemy: (enemy: any) => void;
+  setEnemies: (enemies: any) => void;
+  setEnemyAnimation: (enemyId: number, animation: number) => void;
+  setEnemyPosition: (enemyId: number, position: THREE.Vector3) => void;
+  setEnemyHealth: (enemyId: number, health: number) => void;
+  getEnemyHealth: (enemyId: number) => number;
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;
