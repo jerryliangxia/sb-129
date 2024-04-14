@@ -44,6 +44,7 @@
     "@radix-ui/themes": "^3.0.2",
     "@react-spring/three": "^9.7.3",
     "leva": "^0.9.34",
+    "uuid": "^9.0.1",
     "zustand": "^4.4.7"
   },
   "peerDependencies": {

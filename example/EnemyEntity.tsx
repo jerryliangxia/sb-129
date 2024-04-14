@@ -17,6 +17,7 @@ import { useGame } from "../src/stores/useGame";
 import { useGraph, useFrame } from "@react-three/fiber";
 import { SkeletonUtils } from "three-stdlib";
 import { RigidBody, CapsuleCollider } from "@react-three/rapier";
+import { v4 as uuidv4 } from "uuid";
 
 const MAX_LINVEL = 2;
 const ROTATION_THRESHOLD = Math.PI;
@@ -71,15 +72,9 @@ export default function EnemyEntity({ gameKey, position, ...props }) {
 
   // Hover and animation-index states
   const [index, setIndex] = useState(1);
-  const [localHealth, setLocalHealth] = useState(3);
+  const [numHits, setNumHits] = useState(2);
   const [isBeingHit, setIsBeingHit] = useState(false);
   const [isDying, setIsDying] = useState(false);
-
-  const enemyHealth = useGame(
-    (state) => state.enemies[props.gameKey]?.enemyHealth
-  );
-  const setEnemyHealth = useGame((state) => state.setEnemyHealth);
-  const getEnemyHealth = useGame((state) => state.getEnemyHealth);
 
   const [punchEffectProps, setPunchEffectProp] = useState({
     visible: false,
@@ -90,22 +85,6 @@ export default function EnemyEntity({ gameKey, position, ...props }) {
   });
 
   useEffect(() => {
-    // When the enemy is created, set its health to 2
-    if (localHealth > 2) return;
-    setEnemyHealth(props.gameKey, 2);
-    console.log(getEnemyHealth(props.gameKey));
-    setLocalHealth(2);
-  }, [props.gameKey, setEnemyHealth, getEnemyHealth]);
-
-  useEffect(() => {
-    console.log("Got in here");
-    if (getEnemyHealth(props.gameKey) == 2) {
-      console.log("Got in here now");
-      setLocalHealth(2);
-    }
-  }, [getEnemyHealth, props.gameKey, localHealth]);
-
-  useEffect(() => {
     const action = actions[names[index]];
     if (action) {
       action.reset().fadeIn(0.5).play();
@@ -113,7 +92,7 @@ export default function EnemyEntity({ gameKey, position, ...props }) {
         action.clampWhenFinished = true;
         action.loop = THREE.LoopOnce;
         setTimeout(() => {
-          if (localHealth === -1) {
+          if (numHits === -1) {
             setPunchEffectProp((prev) => ({
               ...prev,
               visible: true,
@@ -195,10 +174,8 @@ export default function EnemyEntity({ gameKey, position, ...props }) {
           } else if (isBeingHit || isDying) {
             return;
           }
-          setEnemyHealth(props.gameKey, getEnemyHealth(props.gameKey) - 1);
-          setLocalHealth(localHealth - 1);
-          console.log(getEnemyHealth(props.gameKey) == localHealth);
-          if (localHealth === 0) {
+          setNumHits(numHits - 1);
+          if (numHits === 0) {
             setIsDying(true);
             setIndex(1);
           } else {
@@ -208,10 +185,10 @@ export default function EnemyEntity({ gameKey, position, ...props }) {
         }
       }}
     >
-      {localHealth > -1 && (
+      {numHits > -1 && (
         <CapsuleCollider args={[0.4, 0.4]} position={[0, 0.8, 0]} />
       )}
-      <group ref={ref} dispose={null} visible={localHealth > -2}>
+      <group ref={ref} dispose={null} visible={numHits > -2}>
         <group name="Scene">
           <group name="Armature" position={[0, 0.316, 0]} scale={0.651}>
             <group name="Sponge">

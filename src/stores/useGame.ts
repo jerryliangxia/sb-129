@@ -21,6 +21,9 @@ export const useGame = /* @__PURE__ */ create(
       setGameStage: (stage: number) => {
         set(() => ({ gameStage: stage }));
       },
+      getGameStage: () => {
+        return get().gameStage;
+      },
 
       // Enemies
       enemies: [],
@@ -343,6 +346,7 @@ type State = {
   setIsFullScreen: (isFullScreen: boolean) => void;
   gameStage: number;
   setGameStage: (stage: number) => void;
+  getGameStage: () => number;
   enemies: any[];
   addEnemy: (enemy: any) => void;
   removeEnemy: (enemy: any) => void;
