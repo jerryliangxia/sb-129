@@ -17,9 +17,7 @@ function Enemies() {
       const enemyPosition = [randomX, 0.9, randomZ]; // Adjust Y as needed
       const id = uuidv4(); // Generate a unique ID for each enemy
 
-      const enemy = (
-        <EnemyEntity key={id} gameKey={id} position={enemyPosition} />
-      );
+      const enemy = <EnemyEntity key={id} position={enemyPosition} />;
       newEnemies.push(enemy);
     }
     setEnemyMesh(newEnemies); // Update the state with new enemies
@@ -43,8 +41,8 @@ function Enemies() {
   return (
     <>
       <Suspense fallback={null}>
-        {enemyMesh.map((item) => (
-          <mesh key={item.props.gameKey} ref={enemyRef}>
+        {enemyMesh.map((item, i) => (
+          <mesh key={i} ref={enemyRef}>
             {item}
           </mesh>
         ))}
