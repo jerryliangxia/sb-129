@@ -51,7 +51,7 @@ function getImpulse(delta, inputDirection) {
   };
 }
 
-export default function Model({ position, ...props }) {
+export default function EnemyEntity({ position, ...props }) {
   // For the rigidbody component
   const body = useRef<RigidBody>();
   // Fetch model and a separate texture

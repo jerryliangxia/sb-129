@@ -21,6 +21,9 @@ export const useGame = /* @__PURE__ */ create(
       setGameStage: (stage: number) => {
         set(() => ({ gameStage: stage }));
       },
+      getGameStage: () => {
+        return get().gameStage;
+      },
 
       /**
        * Point to move point
@@ -306,6 +309,7 @@ type State = {
   setIsFullScreen: (isFullScreen: boolean) => void;
   gameStage: number;
   setGameStage: (stage: number) => void;
+  getGameStage: () => number;
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;
