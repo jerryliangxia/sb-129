@@ -17,7 +17,6 @@ import { useGame } from "../src/stores/useGame";
 import { useGraph, useFrame } from "@react-three/fiber";
 import { SkeletonUtils } from "three-stdlib";
 import { RigidBody, CapsuleCollider } from "@react-three/rapier";
-import { v4 as uuidv4 } from "uuid";
 
 const MAX_LINVEL = 2;
 const ROTATION_THRESHOLD = Math.PI;
@@ -52,7 +51,7 @@ function getImpulse(delta, inputDirection) {
   };
 }
 
-export default function EnemyEntity({ gameKey, position, ...props }) {
+export default function EnemyEntity({ position, ...props }) {
   // For the rigidbody component
   const body = useRef<RigidBody>();
   // Fetch model and a separate texture
