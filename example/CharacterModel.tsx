@@ -2,7 +2,7 @@ import { useAnimations, useGLTF, SpriteAnimator } from "@react-three/drei";
 import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import {
   CapsuleCollider,
   RigidBody,
@@ -202,6 +202,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
   }, [curHealth]);
 
+  const { camera } = useThree();
+
   useEffect(() => {
     if (curHealth > 10) {
       // Stop any death animations and reset character state
@@ -212,8 +214,13 @@ export default function CharacterModel(props: CharacterModelProps) {
       idleDeathAction?.stop();
 
       // Reset the character to the idle animation
-      actions[animationSet.action3]?.play();
+      actions[animationSet.action3]?.reset().play();
       setCurHealth(10); // Ensure health does not exceed 10 if that's the intended maximum after recovery
+      group.current?.parent?.parent?.position.set(0, 0, 0);
+      // group.current?.parent?.parent?.rotation.set(0, 0, 0);
+      // group.current?.parent?.parent?.quaternion.set(0, 0, 0, 1);
+      // camera.lookAt(new THREE.Vector3(0, 0, 1));
+      // camera.updateProjectionMatrix();
       document.body.requestPointerLock();
       if (overlayVisible) setOverlayVisible(false);
     }
@@ -369,6 +376,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   });
 
   useFrame(() => {
+    // console.log(group.current.parent.parent.position);
     if (curAnimation === "Attack20Clarinet") {
       if (rightHand) {
         rightHand.getWorldPosition(rightHandPos);

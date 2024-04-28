@@ -7,6 +7,7 @@ function Enemies() {
   const [enemyMesh, setEnemyMesh] = useState<React.ReactElement[]>([]);
   const enemyRef = useRef<mesh>();
   const setGameStage = useGame((state) => state.setGameStage);
+  const curHealth = useGame((state) => state.curHealth);
 
   // Function to create enemies
   const createEnemies = () => {
@@ -37,6 +38,12 @@ function Enemies() {
     // Remove event listener on cleanup
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []); // Removed dependencies to avoid re-adding the event listener unnecessarily
+
+  useEffect(() => {
+    if (curHealth > 10) {
+      setEnemyMesh([]); // Clear enemies when curHealth is greater than 10
+    }
+  }, [curHealth]);
 
   return (
     <>
