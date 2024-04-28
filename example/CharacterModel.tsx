@@ -77,10 +77,14 @@ export default function CharacterModel(props: CharacterModelProps) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const setCurAnimation = useGame((state) => state.setCurAnimation);
   const setCurPosition = useGame((state) => state.setCurPosition);
   const setCurDirection = useGame((state) => state.setCurDirection);
   const combatMode = useGame((state) => state.combatMode);
   const curHealth = useGame((state) => state.curHealth);
+  const setCurHealth = useGame((state) => state.setCurHealth);
+  const overlayVisible = useGame((state) => state.overlayVisible);
+  const setOverlayVisible = useGame((state) => state.setOverlayVisible);
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
@@ -178,23 +182,61 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Health - handle deaths
   useEffect(() => {
     if (curHealth <= 0) {
-      const fallAction = actions[animationSet.action5];
-      if (fallAction) {
-        fallAction.reset().play();
-        fallAction.clampWhenFinished = true;
-        fallAction.setLoop(THREE.LoopOnce, 1);
+      Object.values(actions).forEach((action) => {
+        action?.stop();
+      });
+      // const fallAction = actions[animationSet.action5];
+      // if (fallAction) {
+      //   fallAction.reset().play();
+      //   fallAction.clampWhenFinished = true;
+      //   fallAction.setLoop(THREE.LoopOnce, 1);
 
-        fallAction.getMixer().addEventListener("finished", () => {
-          const idleDeathAction = actions[animationSet.action6];
-          if (idleDeathAction) {
-            idleDeathAction.reset().play();
-            idleDeathAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
-          }
-          document.exitPointerLock();
-        });
-      }
+      //   fallAction.getMixer().addEventListener("finished", () => {
+      const idleDeathAction = actions[animationSet.action6];
+      // if (idleDeathAction) {
+      idleDeathAction?.reset().play();
+      idleDeathAction?.setLoop(THREE.LoopRepeat, Infinity);
+      // }
+      document.exitPointerLock();
+      if (!overlayVisible) setOverlayVisible(true);
+      // });
     }
-  }, [curHealth]);
+    // }
+  }, [curHealth, actions, overlayVisible, setOverlayVisible]);
+
+  const [rotation, setRotation] = useState([0, 0, 0]);
+
+  useEffect(() => {
+    if (curHealth > 10) {
+      Object.values(actions).forEach((action) => {
+        action?.stop();
+      });
+      // Stop any death animations and reset character state
+      const idleDeathAction = actions[animationSet.action6];
+      // if (idleDeathAction && idleDeathAction.isRunning()) {
+      actions[animationSet.action5]?.stop();
+      idleDeathAction?.stop();
+      // }
+
+      const fallAction = actions[animationSet.action5];
+      if (fallAction && fallAction.isRunning()) {
+        fallAction.stop();
+      }
+
+      // Reset the character to the idle animation
+      actions[animationSet.action3]?.play();
+      setCurHealth(10); // Ensure health does not exceed 10 if that's the intended maximum after recovery
+      document.body.requestPointerLock();
+      if (overlayVisible) setOverlayVisible(false);
+    }
+  }, [
+    curHealth,
+    setCurHealth,
+    actions,
+    animationSet,
+    overlayVisible,
+    setRotation,
+  ]);
 
   // Initialize animation set
   useEffect(() => {
@@ -379,6 +421,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   });
 
   useEffect(() => {
+    if (curHealth <= 0) return;
     const { w, a, s, d, shift } = keysPressed;
     const anyWASDPressed = w || a || s || d;
 
@@ -500,16 +543,14 @@ export default function CharacterModel(props: CharacterModelProps) {
 
       {/* Character model */}
       {/* Used as a spring for the speed of rotation */}
-      {curHealth > 0 && (
-        <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
-      )}
+      <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
       <group
         ref={group}
         {...props}
-        rotation={[curHealth <= 0 ? -0.15 * Math.PI : 0, 0, 0]}
+        rotation={rotation}
         dispose={null}
         scale={0.4}
-        position-y={curHealth > 0 ? -0.9 : -1.1}
+        position-y={-0.9}
       >
         <group name="Scene">
           <group name="Armature" position={[0, 1.422, 0]} scale={0.762}>

@@ -12,10 +12,19 @@ export default function Overlay() {
   const setIsFullScreen = useGame((state) => state.setIsFullScreen);
   const gameStage = useGame((state) => state.gameStage);
   const setGameStage = useGame((state) => state.setGameStage);
+  const curHealth = useGame((state) => state.curHealth);
+  const setCurHealth = useGame((state) => state.setCurHealth);
+  const setCurAnimation = useGame((state) => state.setCurAnimation);
+  const animationSet = useGame((state) => state.animationSet);
 
   const handleClick = () => {
     if (isFullScreen) {
       document.body.requestFullscreen();
+    }
+    if (curHealth <= 0) {
+      setCurHealth(11);
+      console.log(animationSet);
+      setCurAnimation("IdleClarinet");
     }
     setGameStage(gameStage + 1);
     setOverlayVisible(!overlayVisible);
@@ -78,7 +87,9 @@ export default function Overlay() {
             alt="Logo"
             style={{ maxWidth: "80%", maxHeight: "100%", objectFit: "contain" }}
           />
-          <StyledButton onClick={() => handleClick()}>Enter</StyledButton>
+          <StyledButton onClick={() => handleClick()}>
+            {curHealth > 0 ? "Enter" : "Restart"}
+          </StyledButton>
           <StyledSwitch
             checked={isFullScreen}
             onCheckedChange={setIsFullScreen}
