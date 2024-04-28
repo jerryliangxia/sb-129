@@ -202,13 +202,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
   }, [curHealth]);
 
-  const [rotation, setRotation] = useState([0, 0, 0]);
-
   useEffect(() => {
     if (curHealth > 10) {
-      // Object.values(actions).forEach((action) => {
-      //   action?.stop();
-      // });
       // Stop any death animations and reset character state
       const fallAction = actions[animationSet.action5];
       fallAction?.stop();
@@ -222,14 +217,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       document.body.requestPointerLock();
       if (overlayVisible) setOverlayVisible(false);
     }
-  }, [
-    curHealth,
-    setCurHealth,
-    actions,
-    animationSet,
-    overlayVisible,
-    setRotation,
-  ]);
+  }, [curHealth, setCurHealth, actions, animationSet, overlayVisible]);
 
   // Initialize animation set
   useEffect(() => {
@@ -540,7 +528,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       <group
         ref={group}
         {...props}
-        rotation={rotation}
+        rotation={[0, 0, 0]}
         dispose={null}
         scale={0.4}
         position-y={-0.9}
