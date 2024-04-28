@@ -22,8 +22,7 @@ export default function Overlay() {
       document.body.requestFullscreen();
     }
     if (curHealth <= 0) {
-      setCurHealth(11);
-      console.log(animationSet);
+      setCurHealth(11); // Reset to 11 to trigger useEffect in CharacterModel
       setCurAnimation("IdleClarinet");
     }
     setGameStage(gameStage + 1);

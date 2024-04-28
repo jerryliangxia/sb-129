@@ -181,47 +181,40 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   // Health - handle deaths
   useEffect(() => {
-    if (curHealth <= 0) {
+    if (curHealth == 0) {
       Object.values(actions).forEach((action) => {
         action?.stop();
       });
-      // const fallAction = actions[animationSet.action5];
-      // if (fallAction) {
-      //   fallAction.reset().play();
-      //   fallAction.clampWhenFinished = true;
-      //   fallAction.setLoop(THREE.LoopOnce, 1);
+      const fallAction = actions[animationSet.action5];
+      if (fallAction) {
+        fallAction.reset().play();
+        fallAction.clampWhenFinished = true;
+        fallAction.setLoop(THREE.LoopOnce, 1);
 
-      //   fallAction.getMixer().addEventListener("finished", () => {
-      const idleDeathAction = actions[animationSet.action6];
-      // if (idleDeathAction) {
-      idleDeathAction?.reset().play();
-      idleDeathAction?.setLoop(THREE.LoopRepeat, Infinity);
-      // }
-      document.exitPointerLock();
-      if (!overlayVisible) setOverlayVisible(true);
-      // });
+        fallAction.getMixer().addEventListener("finished", () => {
+          fallAction?.fadeOut(1.0);
+          const idleDeathAction = actions[animationSet.action6];
+          idleDeathAction?.reset().fadeIn(1.0).play();
+          document.exitPointerLock();
+          if (!overlayVisible) setOverlayVisible(true);
+        });
+      }
     }
-    // }
-  }, [curHealth, actions, overlayVisible, setOverlayVisible]);
+  }, [curHealth]);
 
   const [rotation, setRotation] = useState([0, 0, 0]);
 
   useEffect(() => {
     if (curHealth > 10) {
-      Object.values(actions).forEach((action) => {
-        action?.stop();
-      });
+      // Object.values(actions).forEach((action) => {
+      //   action?.stop();
+      // });
       // Stop any death animations and reset character state
-      const idleDeathAction = actions[animationSet.action6];
-      // if (idleDeathAction && idleDeathAction.isRunning()) {
-      actions[animationSet.action5]?.stop();
-      idleDeathAction?.stop();
-      // }
-
       const fallAction = actions[animationSet.action5];
-      if (fallAction && fallAction.isRunning()) {
-        fallAction.stop();
-      }
+      fallAction?.stop();
+
+      const idleDeathAction = actions[animationSet.action6];
+      idleDeathAction?.stop();
 
       // Reset the character to the idle animation
       actions[animationSet.action3]?.play();
