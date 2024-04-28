@@ -2,7 +2,7 @@ import { useAnimations, useGLTF, SpriteAnimator } from "@react-three/drei";
 import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import {
   CapsuleCollider,
   RigidBody,
@@ -77,10 +77,14 @@ export default function CharacterModel(props: CharacterModelProps) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const setCurAnimation = useGame((state) => state.setCurAnimation);
   const setCurPosition = useGame((state) => state.setCurPosition);
   const setCurDirection = useGame((state) => state.setCurDirection);
   const combatMode = useGame((state) => state.combatMode);
   const curHealth = useGame((state) => state.curHealth);
+  const setCurHealth = useGame((state) => state.setCurHealth);
+  const overlayVisible = useGame((state) => state.overlayVisible);
+  const setOverlayVisible = useGame((state) => state.setOverlayVisible);
   const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
@@ -177,7 +181,10 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   // Health - handle deaths
   useEffect(() => {
-    if (curHealth <= 0) {
+    if (curHealth == 0) {
+      Object.values(actions).forEach((action) => {
+        action?.stop();
+      });
       const fallAction = actions[animationSet.action5];
       if (fallAction) {
         fallAction.reset().play();
@@ -185,16 +192,39 @@ export default function CharacterModel(props: CharacterModelProps) {
         fallAction.setLoop(THREE.LoopOnce, 1);
 
         fallAction.getMixer().addEventListener("finished", () => {
+          fallAction?.fadeOut(1.0);
           const idleDeathAction = actions[animationSet.action6];
-          if (idleDeathAction) {
-            idleDeathAction.reset().play();
-            idleDeathAction.setLoop(THREE.LoopRepeat, Infinity); // Loop indefinitely
-          }
+          idleDeathAction?.reset().fadeIn(1.0).play();
           document.exitPointerLock();
+          if (!overlayVisible) setOverlayVisible(true);
         });
       }
     }
   }, [curHealth]);
+
+  const { camera } = useThree();
+
+  useEffect(() => {
+    if (curHealth > 10) {
+      // Stop any death animations and reset character state
+      const fallAction = actions[animationSet.action5];
+      fallAction?.stop();
+
+      const idleDeathAction = actions[animationSet.action6];
+      idleDeathAction?.stop();
+
+      // Reset the character to the idle animation
+      actions[animationSet.action3]?.reset().play();
+      setCurHealth(10); // Ensure health does not exceed 10 if that's the intended maximum after recovery
+      group.current?.parent?.parent?.position.set(0, 0, 0);
+      // group.current?.parent?.parent?.rotation.set(0, 0, 0);
+      // group.current?.parent?.parent?.quaternion.set(0, 0, 0, 1);
+      // camera.lookAt(new THREE.Vector3(0, 0, 1));
+      // camera.updateProjectionMatrix();
+      document.body.requestPointerLock();
+      if (overlayVisible) setOverlayVisible(false);
+    }
+  }, [curHealth, setCurHealth, actions, animationSet, overlayVisible]);
 
   // Initialize animation set
   useEffect(() => {
@@ -346,6 +376,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   });
 
   useFrame(() => {
+    // console.log(group.current.parent.parent.position);
     if (curAnimation === "Attack20Clarinet") {
       if (rightHand) {
         rightHand.getWorldPosition(rightHandPos);
@@ -379,6 +410,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   });
 
   useEffect(() => {
+    if (curHealth <= 0) return;
     const { w, a, s, d, shift } = keysPressed;
     const anyWASDPressed = w || a || s || d;
 
@@ -500,16 +532,14 @@ export default function CharacterModel(props: CharacterModelProps) {
 
       {/* Character model */}
       {/* Used as a spring for the speed of rotation */}
-      {curHealth > 0 && (
-        <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
-      )}
+      <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
       <group
         ref={group}
         {...props}
-        rotation={[curHealth <= 0 ? -0.15 * Math.PI : 0, 0, 0]}
+        rotation={[0, 0, 0]}
         dispose={null}
         scale={0.4}
-        position-y={curHealth > 0 ? -0.9 : -1.1}
+        position-y={-0.9}
       >
         <group name="Scene">
           <group name="Armature" position={[0, 1.422, 0]} scale={0.762}>

@@ -141,6 +141,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     ref
   ) => {
     const curHealth = useGame((state) => state.curHealth);
+    const overlayVisible = useGame((state) => state.overlayVisible);
     const characterRef =
       (ref as RefObject<RapierRigidBody>) || useRef<RapierRigidBody>();
     const characterModelRef = useRef<THREE.Group>();
@@ -162,7 +163,12 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     useEffect(() => {
       const handleKeyDown = (event: any) => {
         // Check if the spacebar is pressed
-        if (event.code === "Space" && !holdingSpaceBar && curHealth > 0) {
+        if (
+          event.code === "Space" &&
+          !holdingSpaceBar &&
+          curHealth > 0 &&
+          !overlayVisible
+        ) {
           setHoldingSpacebar(true);
           jumpAnimation();
         }
@@ -1167,7 +1173,8 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           gamepadKeys.backward ||
           gamepadKeys.leftward ||
           gamepadKeys.rightward) &&
-        curHealth > 0
+        curHealth > 0 &&
+        !overlayVisible
       )
         moveCharacter(delta, run, slopeAngle, movingObjectVelocity);
 
@@ -1176,7 +1183,12 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         currentVel.copy(characterRef.current.linvel() as THREE.Vector3);
 
       // Jump impulse
-      if ((jump || button1Pressed) && canJump && curHealth > 0) {
+      if (
+        (jump || button1Pressed) &&
+        canJump &&
+        curHealth > 0 &&
+        !overlayVisible
+      ) {
         // characterRef.current.applyImpulse(jumpDirection.set(0, 0.5, 0), true);
         jumpVelocityVec.set(
           currentVel.x,
@@ -1203,7 +1215,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       }
 
       // Rotate character Indicator
-      if (curHealth > 0) {
+      if (curHealth > 0 && !overlayVisible) {
         modelQuat.setFromEuler(modelEuler);
         characterModelIndicator.quaternion.rotateTowards(
           modelQuat,
@@ -1525,7 +1537,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
        * Apply all the animations
        */
       if (animated) {
-        if (curHealth <= 0) return;
+        if (curHealth <= 0 || overlayVisible) return;
         if (
           !forward &&
           !backward &&
@@ -1583,7 +1595,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         position={props.position || [0, 5, 0]}
         friction={props.friction || -0.5}
         onContactForce={(e) => {
-          if (curHealth > 0) {
+          if (curHealth > 0 && !overlayVisible) {
             bodyContactForce.set(
               e.totalForce.x,
               e.totalForce.y,
@@ -1596,7 +1608,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
             curAnimation != "Attack20Clarinet" &&
             e.collider.parent().userData.type == "enemy"
           ) {
-            if (curHealth > 0) {
+            if (curHealth > 0 && !overlayVisible) {
               setCurAnimation(animationSet.action3);
               const currentPosition = new THREE.Vector3(...getCurPosition());
               const enemyPosition = new THREE.Vector3(
