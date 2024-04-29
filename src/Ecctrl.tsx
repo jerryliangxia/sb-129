@@ -1004,11 +1004,23 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           }
         );
 
+        // Mouse click listener for action4
+        const handleClick = (event: MouseEvent) => {
+          // Check if the left mouse button was clicked
+          if (event.button === 0) {
+            // 0 is the button code for the left mouse button
+            animated && action4Animation();
+          }
+        };
+
+        window.addEventListener("click", handleClick);
+
         return () => {
           unSubscribeAction1();
           unSubscribeAction2();
           unSubscribeAction3();
           unSubscribeAction4();
+          window.removeEventListener("click", handleClick);
         };
       });
     }
