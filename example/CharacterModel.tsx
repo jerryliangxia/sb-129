@@ -441,10 +441,6 @@ export default function CharacterModel(props: CharacterModelProps) {
         play: true,
       }));
       if (topHalfAction && bottomHalfAction) {
-        console.log(
-          topHalfAction.getClip().name,
-          bottomHalfAction.getClip().name
-        );
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
         topHalfAction.clampWhenFinished = true;
