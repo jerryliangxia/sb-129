@@ -1,4 +1,9 @@
-import { useAnimations, useGLTF, SpriteAnimator } from "@react-three/drei";
+import {
+  useAnimations,
+  useGLTF,
+  SpriteAnimator,
+  useTexture,
+} from "@react-three/drei";
 import React, { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useGame } from "../src/stores/useGame";
@@ -14,11 +19,12 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squid_try10.glb"
+    "/squidward_clarinet.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
   };
+  const texture = useTexture("/base_color.png");
   const { actions } = useAnimations(animations, group);
   const [keysPressed, setKeysPressed] = useState({
     w: false,
@@ -80,7 +86,6 @@ export default function CharacterModel(props: CharacterModelProps) {
   const setCurAnimation = useGame((state) => state.setCurAnimation);
   const setCurPosition = useGame((state) => state.setCurPosition);
   const setCurDirection = useGame((state) => state.setCurDirection);
-  const combatMode = useGame((state) => state.combatMode);
   const curHealth = useGame((state) => state.curHealth);
   const setCurHealth = useGame((state) => state.setCurHealth);
   const overlayVisible = useGame((state) => state.overlayVisible);
@@ -95,19 +100,20 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   // Rename your character animations here
   let animationSet = {
-    idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
-    walk: combatMode === "melee" ? "Walk30Clarinet" : "Walk",
-    run: combatMode === "melee" ? "Run20Clarinet" : "Run2",
-    jump: "Jump_Start",
-    jumpIdle: "Jump_Idle",
-    jumpLand: "Jump_Land",
-    fall: "Jump_Idle",
-    action1: "Jump_Idle",
-    action2: "Jump_Idle",
-    action3: "Jump_Land",
-    action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
-    action5: "FallOver",
-    action6: "IdleDeath",
+    idle: "C_Idle",
+    walk: "C_Walk",
+    run: "C_Run",
+    jump: "C_JumpStart",
+    jumpIdle: "C_JumpIdle",
+    jumpLand: "C_JumpLand",
+    fall: "C_JumpIdle",
+    action1: "C_HeadButt",
+    action2: "C_JumpIdle",
+    action3: "LArmAttack",
+    action4: "C_Attack",
+    action5: "C_Fall",
+    action6: "C_Death",
+    action7: "C_Shoot",
   };
 
   useFrame((state, delta) => {
@@ -173,7 +179,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       if (obj.name === "Clarinet") {
         clarinet = obj;
       }
-      if (obj.name === "Gun") {
+      if (obj.name === "ShootClarinet") {
         squidGun = obj;
       }
     });
@@ -217,143 +223,129 @@ export default function CharacterModel(props: CharacterModelProps) {
       actions[animationSet.action3]?.reset().play();
       setCurHealth(10); // Ensure health does not exceed 10 if that's the intended maximum after recovery
       group.current?.parent?.parent?.position.set(0, 0, 0);
-      // group.current?.parent?.parent?.rotation.set(0, 0, 0);
-      // group.current?.parent?.parent?.quaternion.set(0, 0, 0, 1);
-      // camera.lookAt(new THREE.Vector3(0, 0, 1));
-      // camera.updateProjectionMatrix();
       document.body.requestPointerLock();
       if (overlayVisible) setOverlayVisible(false);
     }
   }, [curHealth, setCurHealth, actions, animationSet, overlayVisible]);
 
-  // Initialize animation set
-  useEffect(() => {
-    if (curHealth <= 0) return;
-    // Prepare mug model for cheer action
-    if (combatMode === "melee") {
-      clarinet.visible = true;
-      squidGun.visible = false;
-    } else {
-      squidGun.visible = true;
-      clarinet.visible = false;
-    }
-    animationSet = {
-      idle: combatMode === "melee" ? "IdleClarinet" : "Idle",
-      walk: combatMode === "melee" ? "Walk30Clarinet" : "Walk",
-      run: combatMode === "melee" ? "Run20Clarinet" : "Run2",
-      jump: "Jump_Start",
-      jumpIdle: "Jump_Idle",
-      jumpLand: "Jump_Land",
-      fall: "Jump_Idle",
-      action1: "Jump_Idle",
-      action2: "Jump_Idle",
-      action3: "Jump_Land",
-      action4: combatMode === "melee" ? "Attack20Clarinet" : "Shoot2",
-    };
-    initializeAnimationSet(animationSet);
-  }, [combatMode, initializeAnimationSet]);
-
   // Bone filtering
   useEffect(() => {
     // Initialize animation set
     initializeAnimationSet(animationSet);
+    clarinet.visible = true;
+    squidGun.visible = false;
 
     // Example usage of applyBoneFiltering
-    if (actions["Shoot2"]) {
-      applyBoneFiltering(actions["Shoot2"], {
+    if (actions["C_Shoot"]) {
+      applyBoneFiltering(actions["C_Shoot"], {
         excludeBones: [
-          "LegL",
-          "CalfL",
-          "FrontFootL",
-          "FrontFootHeelL",
-          "BackFootL",
-          "BackFootHeelL",
-          "LegR",
-          "CalfR",
-          "FrontFootR",
-          "FrontFootHeelR",
-          "BackFootR",
-          "BackFootHeelR",
-          "Head",
-          "Neck",
+          "BackLegL",
+          "BackCalfL",
+          "BackHeelL",
+          "BackToesL",
+          "BackToesTipL",
+          "FrontLegL",
+          "FrontCalfL",
+          "FrontHeelL",
+          "FrontToesL",
+          "FrontToesTipL",
+          "BackLegR",
+          "BackCalfR",
+          "BackHeelR",
+          "BackToesR",
+          "BackToesTipR",
+          "FrontLegR",
+          "FrontCalfR",
+          "FrontHeelR",
+          "FrontToesR",
+          "FrontToesTipR",
         ],
       });
     }
 
-    if (actions["AttackClarinet"]) {
-      applyBoneFiltering(actions["AttackClarinet"], {
-        excludeBones: [
-          "LegL",
-          "CalfL",
-          "FrontFootL",
-          "FrontFootHeelL",
-          "BackFootL",
-          "BackFootHeelL",
-          "LegR",
-          "CalfR",
-          "FrontFootR",
-          "FrontFootHeelR",
-          "BackFootR",
-          "BackFootHeelR",
-          "Head",
-          "Neck",
-        ],
-      });
-    }
-
-    if (actions["RunWithoutTop"]) {
-      applyBoneFiltering(actions["RunWithoutTop"], {
+    if (actions["C_Run_NoTop"]) {
+      applyBoneFiltering(actions["C_Run_NoTop"], {
         filterBones: [
-          "LegL",
-          "CalfL",
-          "FrontFootL",
-          "FrontFootHeelL",
-          "BackFootL",
-          "BackFootHeelL",
-          "LegR",
-          "CalfR",
-          "FrontFootR",
-          "FrontFootHeelR",
-          "BackFootR",
-          "BackFootHeelR",
+          "BackLegL",
+          "BackCalfL",
+          "BackHeelL",
+          "BackToesL",
+          "BackToesTipL",
+          "FrontLegL",
+          "FrontCalfL",
+          "FrontHeelL",
+          "FrontToesL",
+          "FrontToesTipL",
+          "BackLegR",
+          "BackCalfR",
+          "BackHeelR",
+          "BackToesR",
+          "BackToesTipR",
+          "FrontLegR",
+          "FrontCalfR",
+          "FrontHeelR",
+          "FrontToesR",
+          "FrontToesTipR",
+          "Hips",
+          "Spine",
         ],
       });
     }
 
-    if (actions["WalkWithoutTop"]) {
-      applyBoneFiltering(actions["WalkWithoutTop"], {
+    if (actions["C_Walk_NoTop"]) {
+      applyBoneFiltering(actions["C_Walk_NoTop"], {
         filterBones: [
-          "LegL",
-          "CalfL",
-          "FrontFootL",
-          "FrontFootHeelL",
-          "BackFootL",
-          "BackFootHeelL",
-          "LegR",
-          "CalfR",
-          "FrontFootR",
-          "FrontFootHeelR",
-          "BackFootR",
-          "BackFootHeelR",
+          "BackLegL",
+          "BackCalfL",
+          "BackHeelL",
+          "BackToesL",
+          "BackToesTipL",
+          "FrontLegL",
+          "FrontCalfL",
+          "FrontHeelL",
+          "FrontToesL",
+          "FrontToesTipL",
+          "BackLegR",
+          "BackCalfR",
+          "BackHeelR",
+          "BackToesR",
+          "BackToesTipR",
+          "FrontLegR",
+          "FrontCalfR",
+          "FrontHeelR",
+          "FrontToesR",
+          "FrontToesTipR",
+          "Hips",
+          "Spine",
         ],
       });
     }
 
-    if (actions["IdleWithoutTop"]) {
-      applyBoneFiltering(actions["IdleWithoutTop"], {
+    if (actions["C_Idle_NoTop"]) {
+      applyBoneFiltering(actions["C_Idle_NoTop"], {
         filterBones: [
-          "LegL",
-          "CalfL",
-          "FrontFootL",
-          "FrontFootHeelL",
-          "BackFootL",
-          "BackFootHeelL",
-          "LegR",
-          "CalfR",
-          "FrontFootR",
-          "FrontFootHeelR",
-          "BackFootR",
-          "BackFootHeelR",
+          "BackLegL",
+          "BackCalfL",
+          "BackHeelL",
+          "BackToesL",
+          "BackToesTipL",
+          "FrontLegL",
+          "FrontCalfL",
+          "FrontHeelL",
+          "FrontToesL",
+          "FrontToesTipL",
+          "BackLegR",
+          "BackCalfR",
+          "BackHeelR",
+          "BackToesR",
+          "BackToesTipR",
+          "FrontLegR",
+          "FrontCalfR",
+          "FrontHeelR",
+          "FrontToesR",
+          "FrontToesTipR",
+          "Hips",
+          "Spine",
         ],
       });
     }
@@ -370,14 +362,15 @@ export default function CharacterModel(props: CharacterModelProps) {
     group?.current?.traverse((obj) => {
       // Prepare both hands bone object
       if (obj instanceof THREE.Bone) {
-        if (obj.name === "HandTopR") rightHand = obj;
+        if (obj.name === "HandR") rightHand = obj;
       }
     });
   });
 
+  // Copy rigid body capsule collider to hand for action 4
   useFrame(() => {
     // console.log(group.current.parent.parent.position);
-    if (curAnimation === "Attack20Clarinet") {
+    if (curAnimation === animationSet.action4) {
       if (rightHand) {
         rightHand.getWorldPosition(rightHandPos);
         group?.current?.getWorldPosition(bodyPos);
@@ -415,37 +408,43 @@ export default function CharacterModel(props: CharacterModelProps) {
     const anyWASDPressed = w || a || s || d;
 
     // Play animation
-    const action = actions[curAnimation ? curAnimation : animationSet.jumpIdle];
+    const action = actions[curAnimation ? curAnimation : animationSet.idle];
 
     // For jump and jump land animation, only play once and clamp when finish
-    let topHalfAction = actions[curAnimation];
-    // Just reverse the actions - rip animation system I made for three days
+    let topHalfAction = actions[animationSet.action7];
+    // Just reverse the actions
     let bottomHalfAction =
       shift && anyWASDPressed
-        ? actions["RunWithoutTop"]
+        ? actions["C_Run_NoTop"]
         : anyWASDPressed && !shift
-        ? actions["WalkWithoutTop"]
-        : actions["IdleWithoutTop"];
+        ? actions["C_Walk_NoTop"]
+        : actions["C_Idle_NoTop"];
+
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
       curAnimation === animationSet.action1 ||
       curAnimation === animationSet.action2 ||
-      curAnimation === animationSet.action3
+      curAnimation === animationSet.action3 ||
+      curAnimation === animationSet.action4
     ) {
       if (action) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
       }
-    } else if (curAnimation === animationSet.action4) {
-      if (animationSet.action4 === "Shoot2") {
-        setPunchEffectProp((prev) => ({
-          ...prev,
-          visible: true,
-          play: true,
-        }));
-      }
+    } else if (curAnimation === animationSet.action7) {
+      squidGun.visible = true;
+      clarinet.visible = false;
+      setPunchEffectProp((prev) => ({
+        ...prev,
+        visible: true,
+        play: true,
+      }));
       if (topHalfAction && bottomHalfAction) {
+        console.log(
+          topHalfAction.getClip().name,
+          bottomHalfAction.getClip().name
+        );
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
         topHalfAction.clampWhenFinished = true;
@@ -455,13 +454,16 @@ export default function CharacterModel(props: CharacterModelProps) {
         topHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
 
         bottomHalfAction.reset().fadeIn(0.2).play();
-        bottomHalfAction.clampWhenFinished = true;
-        (bottomHalfAction as any)._mixer.addEventListener("finished", () =>
-          resetAnimation()
-        );
+        bottomHalfAction.clampWhenFinished = false; // Ensure it doesn't stay on the last frame
+        (bottomHalfAction as any)._mixer.addEventListener("finished", () => {
+          bottomHalfAction.fadeOut(0.2); // Smoothly transition out
+          actions[animationSet.idle]?.reset().fadeIn(0.2).play(); // Reset to idle
+          resetAnimation();
+        });
         bottomHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
       }
     } else {
+      // Once done, resets to idle
       action?.reset().fadeIn(0.2).play();
     }
 
@@ -470,37 +472,18 @@ export default function CharacterModel(props: CharacterModelProps) {
 
     return () => {
       // Move hand collider back to initial position after action
-      if (curAnimation === animationSet.action4) {
-        if (topHalfAction && bottomHalfAction) {
-          (topHalfAction as any)._mixer.addEventListener("finished", () =>
-            resetAnimation()
-          );
-          (bottomHalfAction as any)._mixer.addEventListener("finished", () =>
-            resetAnimation()
-          );
-
-          topHalfAction.fadeOut(0.2);
-          bottomHalfAction.fadeOut(0.2);
-
-          (topHalfAction as any)._mixer.removeEventListener("finished", () =>
-            resetAnimation()
-          );
-          (topHalfAction as any)._mixer._listeners = [];
-          (bottomHalfAction as any)._mixer.removeEventListener("finished", () =>
-            resetAnimation()
-          );
-          (bottomHalfAction as any)._mixer._listeners = [];
-        }
-      } else {
-        // Fade out previous action
-        action?.fadeOut(0.2);
-
-        // Clean up mixer listener, and empty the _listeners array
-        (action as any)._mixer.removeEventListener("finished", () =>
-          resetAnimation()
-        );
-        (action as any)._mixer._listeners = [];
+      if (curAnimation === animationSet.action7) {
+        squidGun.visible = false;
+        clarinet.visible = true;
       }
+      // Fade out previous action
+      action?.fadeOut(0.2);
+
+      // Clean up mixer listener, and empty the _listeners array
+      (action as any)._mixer.removeEventListener("finished", () =>
+        resetAnimation()
+      );
+      (action as any)._mixer._listeners = [];
     };
   }, [curAnimation]);
 
@@ -511,7 +494,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       {curAnimation === animationSet.action4 ? (
         <RigidBody userData={{ type: "clarinet" }}>
           <CapsuleCollider
-            args={[0.1, 0.1]}
+            args={[0.1, 0.2]}
             rotation={[Math.PI / 2, 0, 0]}
             ref={rightHandColliderRef}
             onCollisionEnter={(e) => {
@@ -538,35 +521,76 @@ export default function CharacterModel(props: CharacterModelProps) {
         {...props}
         rotation={[0, 0, 0]}
         dispose={null}
-        scale={0.4}
+        scale={0.2}
         position-y={-0.9}
       >
         <group name="Scene">
-          <group name="Armature" position={[0, 1.422, 0]} scale={0.762}>
-            <skinnedMesh
-              name="Eyebags"
-              geometry={nodes.Eyebags.geometry}
-              material={materials.Squid}
-              skeleton={nodes.Eyebags.skeleton}
-            />
-            <group name="SquidMesh">
+          <group name="Armature">
+            <group name="Base">
               <skinnedMesh
-                name="SK_MP_Squidwardmo"
-                geometry={nodes.SK_MP_Squidwardmo.geometry}
-                material={materials.Squid}
-                skeleton={nodes.SK_MP_Squidwardmo.skeleton}
-              />
+                name="Cube"
+                geometry={nodes.Cube.geometry}
+                material={materials.BaseColor}
+                skeleton={nodes.Cube.skeleton}
+              >
+                <meshBasicMaterial map={texture} map-flipY={false} />
+              </skinnedMesh>
               <skinnedMesh
-                castShadow
-                name="SK_MP_Squidwardmo_1"
-                geometry={nodes.SK_MP_Squidwardmo_1.geometry}
+                name="Cube_1"
+                geometry={nodes.Cube_1.geometry}
                 material={materials.Outline}
-                skeleton={nodes.SK_MP_Squidwardmo_1.skeleton}
+                skeleton={nodes.Cube_1.skeleton}
+              >
+                <meshStandardMaterial
+                  color="black"
+                  roughness={1.0}
+                  metalness={0.0}
+                />
+              </skinnedMesh>
+            </group>
+            <group name="EyeBags">
+              <skinnedMesh
+                name="Cylinder"
+                geometry={nodes.Cylinder.geometry}
+                // material={materials.BaseColor}
+                skeleton={nodes.Cylinder.skeleton}
+              >
+                <meshBasicMaterial map={texture} map-flipY={false} />
+              </skinnedMesh>
+              <skinnedMesh
+                name="Cylinder_1"
+                geometry={nodes.Cylinder_1.geometry}
+                material={materials.Outline}
+                skeleton={nodes.Cylinder_1.skeleton}
               />
             </group>
-            <primitive object={nodes.Bone} />
+            <group name="Eyes">
+              <skinnedMesh
+                name="Icosphere002"
+                geometry={nodes.Icosphere002.geometry}
+                // material={materials.BaseColor}
+                skeleton={nodes.Icosphere002.skeleton}
+              >
+                <meshBasicMaterial map={texture} map-flipY={false} />
+              </skinnedMesh>
+              <skinnedMesh
+                name="Icosphere002_1"
+                geometry={nodes.Icosphere002_1.geometry}
+                material={materials.Outline}
+                skeleton={nodes.Icosphere002_1.skeleton}
+              />
+            </group>
+            <skinnedMesh
+              name="Pupils"
+              geometry={nodes.Pupils.geometry}
+              // material={materials.BaseColor}
+              skeleton={nodes.Pupils.skeleton}
+            >
+              <meshBasicMaterial map={texture} map-flipY={false} />
+            </skinnedMesh>
+            <primitive object={nodes.Spine} />
+            <primitive object={nodes.Hips} />
           </group>
-          <group name="Empty" position={[0.516, 1.362, 0.801]} />
         </group>
         {/* <SpriteAnimator
           visible={punchEffectProps.visible}
@@ -595,4 +619,4 @@ export default function CharacterModel(props: CharacterModelProps) {
 export type CharacterModelProps = JSX.IntrinsicElements["group"];
 
 // Change the character src to yours
-useGLTF.preload("/Floating Character.glb");
+useGLTF.preload("/squidward_clarinet.glb");

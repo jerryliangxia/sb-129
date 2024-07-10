@@ -80,10 +80,10 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       // Follow light setups
       followLightPos = { x: 20, y: 30, z: 10 },
       // Base control setups
-      maxVelLimit = 2.5,
+      maxVelLimit = 2.0,
       turnVelMultiplier = 0.2,
       turnSpeed = 15,
-      sprintMult = 2,
+      sprintMult = 2.25,
       jumpVel = 4,
       jumpForceToGroundMult = 5,
       slopJumpMult = 0.25,
@@ -237,6 +237,9 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     const action4Animation = !animated
       ? null
       : useGame((state) => state.action4);
+    const action7Animation = !animated
+      ? null
+      : useGame((state) => state.action7);
 
     /**
      * Debug settings
@@ -968,7 +971,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           (value) => {
             if (value) {
               animated && action1Animation();
-              useGame.getState().switchToMelee();
             }
           }
         );
@@ -979,7 +981,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           (value) => {
             if (value) {
               animated && action2Animation();
-              useGame.getState().switchToFarRange();
             }
           }
         );
@@ -1004,12 +1005,22 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           }
         );
 
-        // Mouse click listener for action4
+        // Trigger key subscribe for special animation
+        const unSubscribeAction7 = subscribeKeys(
+          (state) => state.action7,
+          (value) => {
+            if (value) {
+              animated && action7Animation();
+            }
+          }
+        );
+
+        // Mouse click listener for action7
         const handleClick = (event: MouseEvent) => {
           // Check if the left mouse button was clicked
           if (event.button === 0) {
             // 0 is the button code for the left mouse button
-            animated && action4Animation();
+            animated && action7Animation();
           }
         };
 
@@ -1020,6 +1031,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           unSubscribeAction2();
           unSubscribeAction3();
           unSubscribeAction4();
+          unSubscribeAction7();
           window.removeEventListener("click", handleClick);
         };
       });
@@ -1617,7 +1629,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         }}
         onCollisionEnter={(e) => {
           if (
-            curAnimation != "Attack20Clarinet" &&
+            curAnimation != "C_Attack" &&
             e.collider.parent().userData.type == "enemy"
           ) {
             if (curHealth > 0 && !overlayVisible) {

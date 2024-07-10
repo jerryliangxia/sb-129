@@ -47,7 +47,6 @@ export const useGame = /* @__PURE__ */ create(
       },
       animationSet: {} as AnimationSet,
 
-      combatMode: "melee" as "melee" | "farRange",
       curHealth: 10,
       setCurHealth: (health: number) => {
         set((state) => {
@@ -81,27 +80,6 @@ export const useGame = /* @__PURE__ */ create(
         return get().curDirection;
       },
 
-      /**
-       * Get the current combat mode
-       */
-      getCombatMode: () => {
-        return get().combatMode;
-      },
-
-      /**
-       * Switch to melee combat mode
-       */
-      switchToMelee: () => {
-        set(() => ({ combatMode: "melee" }));
-      },
-
-      /**
-       * Switch to far range combat mode
-       */
-      switchToFarRange: () => {
-        set(() => ({ combatMode: "farRange" }));
-      },
-
       initializeAnimationSet: (animationSet: AnimationSet) => {
         set((state) => {
           if (Object.keys(state.animationSet).length === 0) {
@@ -125,7 +103,8 @@ export const useGame = /* @__PURE__ */ create(
             state.curAnimation !== state.animationSet.action1 &&
             state.curAnimation !== state.animationSet.action2 &&
             state.curAnimation !== state.animationSet.action3 &&
-            state.curAnimation !== state.animationSet.action4
+            state.curAnimation !== state.animationSet.action4 &&
+            state.curAnimation !== state.animationSet.action7
           ) {
             return { curAnimation: state.animationSet.idle };
           }
@@ -135,7 +114,10 @@ export const useGame = /* @__PURE__ */ create(
 
       walk: () => {
         set((state) => {
-          if (state.curAnimation !== state.animationSet.action4) {
+          if (
+            state.curAnimation !== state.animationSet.action7 &&
+            state.curAnimation !== state.animationSet.action4
+          ) {
             return { curAnimation: state.animationSet.walk };
           }
           return {};
@@ -144,7 +126,10 @@ export const useGame = /* @__PURE__ */ create(
 
       run: () => {
         set((state) => {
-          if (state.curAnimation !== state.animationSet.action4) {
+          if (
+            state.curAnimation !== state.animationSet.action7 &&
+            state.curAnimation !== state.animationSet.action4
+          ) {
             return { curAnimation: state.animationSet.run };
           }
           return {};
@@ -184,10 +169,7 @@ export const useGame = /* @__PURE__ */ create(
       action1: () => {
         if (get().curHealth <= 0) return;
         set((state) => {
-          if (
-            state.curAnimation === state.animationSet.idle &&
-            state.combatMode !== "melee"
-          ) {
+          if (state.curAnimation === state.animationSet.idle) {
             return { curAnimation: state.animationSet.action1 };
           }
           return {};
@@ -197,10 +179,7 @@ export const useGame = /* @__PURE__ */ create(
       action2: () => {
         if (get().curHealth <= 0) return;
         set((state) => {
-          if (
-            state.curAnimation === state.animationSet.idle &&
-            state.combatMode === "melee"
-          ) {
+          if (state.curAnimation === state.animationSet.idle) {
             return { curAnimation: state.animationSet.action2 };
           }
           return {};
@@ -231,6 +210,7 @@ export const useGame = /* @__PURE__ */ create(
         });
       },
 
+      // Fall and death animations - don't need health check
       action5: () => {
         set((state) => {
           return { curAnimation: state.animationSet.action5 };
@@ -240,6 +220,21 @@ export const useGame = /* @__PURE__ */ create(
       action6: () => {
         set((state) => {
           return { curAnimation: state.animationSet.action6 };
+        });
+      },
+
+      // Shoot animation
+      action7: () => {
+        if (get().curHealth <= 0) return;
+        set((state) => {
+          if (
+            state.curAnimation === state.animationSet.idle ||
+            state.curAnimation === state.animationSet.walk ||
+            state.curAnimation === state.animationSet.run
+          ) {
+            return { curAnimation: state.animationSet.action7 };
+          }
+          return {};
         });
       },
 
@@ -300,6 +295,7 @@ export type AnimationSet = {
   action4?: string;
   action5?: string;
   action6?: string;
+  action7?: string;
 };
 
 type State = {
@@ -314,10 +310,6 @@ type State = {
   isCameraBased: boolean;
   curAnimation: string;
   setCurAnimation: (animation: string) => void;
-  combatMode: "melee" | "farRange";
-  switchToMelee: () => void;
-  switchToFarRange: () => void;
-  getCombatMode: () => "melee" | "farRange";
   curHealth: number;
   setCurHealth: (health: number) => void;
   curPosition: THREE.Vector3;

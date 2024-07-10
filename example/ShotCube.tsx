@@ -59,7 +59,7 @@ export default function ShotCube() {
   }, [cubeMesh]);
 
   useEffect(() => {
-    if (curAnimation === "Shoot2") clickToCreateBox();
+    if (curAnimation === "C_Shoot") clickToCreateBox();
   }, [curAnimation]);
 
   return (
