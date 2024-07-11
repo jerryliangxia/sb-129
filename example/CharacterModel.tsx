@@ -453,7 +453,6 @@ export default function CharacterModel(props: CharacterModelProps) {
         bottomHalfAction.clampWhenFinished = false; // Ensure it doesn't stay on the last frame
         (bottomHalfAction as any)._mixer.addEventListener("finished", () => {
           bottomHalfAction.fadeOut(0.2); // Smoothly transition out
-          actions[animationSet.idle]?.reset().fadeIn(0.2).play(); // Reset to idle
           resetAnimation();
         });
         bottomHalfAction.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
