@@ -111,7 +111,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     action2: "C_HeadButt",
     action3: "C_Kick",
     action4: "C_Attack",
-    action5: "C_Fall",
+    action5: "Fall",
     action6: "C_Death",
     action7: "C_Shoot",
   };
@@ -212,6 +212,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   useEffect(() => {
     if (curHealth > 10) {
+      console.log("health > 10");
       // Stop any death animations and reset character state
       const fallAction = actions[animationSet.action5];
       fallAction?.stop();
@@ -220,7 +221,6 @@ export default function CharacterModel(props: CharacterModelProps) {
       idleDeathAction?.stop();
 
       // Reset the character to the idle animation
-      actions[animationSet.action3]?.reset().play();
       setCurHealth(10); // Ensure health does not exceed 10 if that's the intended maximum after recovery
       group.current?.parent?.parent?.position.set(0, 0, 0);
       document.body.requestPointerLock();
@@ -530,7 +530,14 @@ export default function CharacterModel(props: CharacterModelProps) {
     }
 
     // When any action is clamp and finished reset animation
-    (action as any)._mixer.addEventListener("finished", () => resetAnimation());
+    if (action) {
+      (action as any)._mixer.addEventListener("finished", () =>
+        resetAnimation()
+      );
+    } else
+      return () => {
+        resetAnimation();
+      };
 
     return () => {
       // Move hand collider back to initial position after action
