@@ -500,7 +500,10 @@ export default function CharacterModel(props: CharacterModelProps) {
         clarinet.visible = false;
         squidGun.visible = true;
       }
-    } else if (curAnimation === animationSet.action7) {
+    } else if (
+      curAnimation === animationSet.action7 ||
+      (!isTouchScreen && curAnimation === animationSet.action1)
+    ) {
       squidGun.visible = true;
       clarinet.visible = false;
       setPunchEffectProp((prev) => ({
