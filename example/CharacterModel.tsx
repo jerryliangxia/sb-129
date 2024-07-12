@@ -19,7 +19,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squidward_clarinet.glb"
+    "/squidward_clarinet_mods_applied.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -109,7 +109,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     fall: "C_JumpIdle",
     action1: "C_HeadButt",
     action2: "C_JumpIdle",
-    action3: "LArmAttack",
+    action3: "C_Kick",
     action4: "C_Attack",
     action5: "C_Fall",
     action6: "C_Death",
@@ -367,6 +367,71 @@ export default function CharacterModel(props: CharacterModelProps) {
     });
   });
 
+  const mixer = useRef<THREE.AnimationMixer | null>(null);
+  const blinkActionRef = useRef<THREE.AnimationAction | null>(null);
+
+  useEffect(() => {
+    if (!group.current) return;
+
+    const eyeBags = group.current.getObjectByName("EyeBags") as THREE.Mesh;
+    if (!eyeBags) return;
+
+    // Create keyframe tracks for the morph targets
+    const times = [0, 0.1, 0.5]; // Keyframe times
+    const valuesUpEyeClose = [1, 0, 1]; // Values for UpEyeClose
+    const valuesClosed = [0, 1, 0]; // Values for Closed
+
+    const upEyeCloseTrack = new THREE.NumberKeyframeTrack(
+      ".morphTargetInfluences[0]", // Assuming UpEyeClose is at index 0
+      times,
+      valuesUpEyeClose
+    );
+
+    const closedTrack = new THREE.NumberKeyframeTrack(
+      ".morphTargetInfluences[1]", // Assuming Closed is at index 1
+      times,
+      valuesClosed
+    );
+
+    // Create an animation clip
+    const blinkClip = new THREE.AnimationClip("Blink", 1, [
+      upEyeCloseTrack,
+      closedTrack,
+    ]);
+
+    // Create an animation mixer and play the clip
+    mixer.current = new THREE.AnimationMixer(eyeBags);
+    blinkActionRef.current = mixer.current.clipAction(blinkClip);
+    blinkActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the blink animation once
+
+    // Function to start the blink animation
+    const startBlinkAnimation = () => {
+      if (blinkActionRef.current) {
+        blinkActionRef.current.reset().play();
+      }
+    };
+
+    // Initial state: UpEyeClose = 1, Closed = 0
+    if (eyeBags?.morphTargetInfluences) {
+      eyeBags.morphTargetInfluences[0] = 1;
+      eyeBags.morphTargetInfluences[1] = 0;
+    }
+    // Start the blink animation after 5 seconds
+    const blinkInterval = setInterval(() => {
+      startBlinkAnimation();
+    }, 5000);
+
+    return () => {
+      clearInterval(blinkInterval);
+    };
+  }, []);
+
+  useFrame((state, delta) => {
+    if (mixer.current) {
+      mixer.current.update(delta);
+    }
+  });
+
   // Copy rigid body capsule collider to hand for action 4
   useFrame(() => {
     // console.log(group.current.parent.parent.position);
@@ -527,13 +592,11 @@ export default function CharacterModel(props: CharacterModelProps) {
                 geometry={nodes.Cube.geometry}
                 material={materials.BaseColor}
                 skeleton={nodes.Cube.skeleton}
-              >
-                <meshBasicMaterial map={texture} map-flipY={false} />
-              </skinnedMesh>
+              />
               <skinnedMesh
                 name="Cube_1"
                 geometry={nodes.Cube_1.geometry}
-                material={materials.Outline}
+                // material={materials.Outline}
                 skeleton={nodes.Cube_1.skeleton}
               >
                 <meshStandardMaterial
@@ -543,37 +606,52 @@ export default function CharacterModel(props: CharacterModelProps) {
                 />
               </skinnedMesh>
             </group>
-            <group name="EyeBags">
-              <skinnedMesh
-                name="Cylinder"
-                geometry={nodes.Cylinder.geometry}
-                // material={materials.BaseColor}
-                skeleton={nodes.Cylinder.skeleton}
-              >
-                <meshBasicMaterial map={texture} map-flipY={false} />
-              </skinnedMesh>
-              <skinnedMesh
-                name="Cylinder_1"
-                geometry={nodes.Cylinder_1.geometry}
-                material={materials.Outline}
-                skeleton={nodes.Cylinder_1.skeleton}
+            <skinnedMesh
+              name="EyeBags"
+              geometry={nodes.EyeBags.geometry}
+              // material={materials.BaseColor}
+              skeleton={nodes.EyeBags.skeleton}
+              morphTargetDictionary={nodes.EyeBags.morphTargetDictionary}
+              morphTargetInfluences={nodes.EyeBags.morphTargetInfluences}
+              scale={0.9}
+            >
+              <meshStandardMaterial map={texture} map-flipY={false} />
+            </skinnedMesh>
+            <skinnedMesh
+              name="EyeBags_Outline"
+              geometry={nodes.EyeBags.geometry.clone().scale(-1, 1, 1)} // Flip the geometry
+              skeleton={nodes.EyeBags.skeleton}
+              morphTargetDictionary={nodes.EyeBags.morphTargetDictionary}
+              morphTargetInfluences={nodes.EyeBags.morphTargetInfluences}
+            >
+              <meshStandardMaterial
+                color="black"
+                roughness={1.0}
+                metalness={0.0}
+                // side={THREE.DoubleSide} // Render both sides
               />
-            </group>
+            </skinnedMesh>
             <group name="Eyes">
               <skinnedMesh
                 name="Icosphere002"
                 geometry={nodes.Icosphere002.geometry}
-                // material={materials.BaseColor}
+                material={materials.BaseColor}
                 skeleton={nodes.Icosphere002.skeleton}
               >
-                <meshBasicMaterial map={texture} map-flipY={false} />
+                <meshStandardMaterial map={texture} map-flipY={false} />
               </skinnedMesh>
               <skinnedMesh
                 name="Icosphere002_1"
                 geometry={nodes.Icosphere002_1.geometry}
-                material={materials.Outline}
+                // material={materials.Outline}
                 skeleton={nodes.Icosphere002_1.skeleton}
-              />
+              >
+                <meshStandardMaterial
+                  color="black"
+                  roughness={1.0}
+                  metalness={0.0}
+                />
+              </skinnedMesh>
             </group>
             <skinnedMesh
               name="Pupils"
@@ -581,7 +659,7 @@ export default function CharacterModel(props: CharacterModelProps) {
               // material={materials.BaseColor}
               skeleton={nodes.Pupils.skeleton}
             >
-              <meshBasicMaterial map={texture} map-flipY={false} />
+              <meshStandardMaterial map={texture} map-flipY={false} />
             </skinnedMesh>
             <primitive object={nodes.Spine} />
             <primitive object={nodes.Hips} />
@@ -614,4 +692,4 @@ export default function CharacterModel(props: CharacterModelProps) {
 export type CharacterModelProps = JSX.IntrinsicElements["group"];
 
 // Change the character src to yours
-useGLTF.preload("/squidward_clarinet.glb");
+useGLTF.preload("/squidward_clarinet_mods_applied.glb");
