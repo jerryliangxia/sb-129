@@ -1198,6 +1198,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
             .add(jumpVelocityVec),
           true
         );
+        jumpAnimation(); // Hacky
         // Apply jump force downward to the standing platform
         characterMassForce.y *= jumpForceToGroundMult;
         rayHit.collider
@@ -1546,8 +1547,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           canJump
         ) {
           idleAnimation();
-        } else if (jump) {
-          jumpAnimation();
         } else if (
           canJump &&
           (forward ||
