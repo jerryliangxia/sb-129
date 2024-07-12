@@ -52,14 +52,6 @@ export const useGame = /* @__PURE__ */ create(
       },
       animationSet: {} as AnimationSet,
 
-      // Jump animation
-      holdingSpacebar: false as boolean,
-      setHoldingSpacebar: (holdingSpacebar: boolean) => {
-        set((state) => {
-          return { ...state, holdingSpacebar: holdingSpacebar };
-        });
-      },
-
       curHealth: 10,
       setCurHealth: (health: number) => {
         set((state) => {
@@ -341,8 +333,6 @@ type State = {
   getCurPosition: () => THREE.Vector3;
   getCurDirection: () => THREE.Vector3;
   animationSet: AnimationSet;
-  holdingSpacebar: boolean;
-  setHoldingSpacebar: (holdingSpacebar: boolean) => void;
   initializeAnimationSet: (animationSet: AnimationSet) => void;
   reset: () => void;
   setMoveToPoint: (point: THREE.Vector3) => void;

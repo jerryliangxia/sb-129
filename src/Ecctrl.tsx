@@ -159,41 +159,6 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
       action4: 0,
     };
 
-    const holdingSpacebar = useGame((state) => state.holdingSpacebar);
-    const setHoldingSpacebar = useGame((state) => state.setHoldingSpacebar);
-
-    useEffect(() => {
-      const handleKeyDown = (event: any) => {
-        // Check if the spacebar is pressed
-        if (
-          event.code === "Space" &&
-          canJump &&
-          !holdingSpacebar &&
-          curHealth > 0 &&
-          !overlayVisible
-        ) {
-          setHoldingSpacebar(true);
-        }
-      };
-
-      const handleKeyUp = (event: any) => {
-        // Check if the spacebar is released
-        if (event.code === "Space") {
-          setHoldingSpacebar(false);
-        }
-      };
-
-      // Add event listeners for keydown and keyup
-      window.addEventListener("keydown", handleKeyDown);
-      window.addEventListener("keyup", handleKeyUp);
-
-      // Cleanup event listeners
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("keyup", handleKeyUp);
-      };
-    }, []);
-
     /**
      * Mode setup
      */
@@ -1307,7 +1272,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
         }
       } else {
         canJump = false;
-        jumpAnimation(); // Hacky; removed jumpAnimation from bottom
+        // jumpAnimation(); // Hacky; removed jumpAnimation from bottom
       }
 
       /**
@@ -1581,9 +1546,8 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           canJump
         ) {
           idleAnimation();
-          // }
-          // else if ((jump || button1Pressed) && canJump && !holdingSpacebar) {
-          //   jumpAnimation();
+        } else if (jump) {
+          jumpAnimation();
         } else if (
           canJump &&
           (forward ||
