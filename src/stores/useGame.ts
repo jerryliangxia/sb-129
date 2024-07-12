@@ -5,6 +5,11 @@ import { subscribeWithSelector } from "zustand/middleware";
 export const useGame = /* @__PURE__ */ create(
   /* @__PURE__ */ subscribeWithSelector<State>((set, get) => {
     return {
+      isTouchScreen: false,
+      setIsTouchScreen: (isTouchScreen: boolean) => {
+        set(() => ({ isTouchScreen: isTouchScreen }));
+      },
+
       // Canvas
       overlayVisible: true,
       setOverlayVisible(visible) {
@@ -309,6 +314,8 @@ export type AnimationSet = {
 };
 
 type State = {
+  isTouchScreen: boolean;
+  setIsTouchScreen: (isTouchScreen: boolean) => void;
   overlayVisible: boolean;
   setOverlayVisible: (visible: boolean) => void;
   isFullScreen: boolean;

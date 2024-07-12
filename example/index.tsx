@@ -13,7 +13,9 @@ import { Theme } from "@radix-ui/themes";
 const root = ReactDOM.createRoot(document.querySelector("#root"));
 
 const EcctrlJoystickControls = () => {
-  const [isTouchScreen, setIsTouchScreen] = useState(false);
+  const isTouchScreen = useGame((state) => state.isTouchScreen);
+  const setIsTouchScreen = useGame((state) => state.setIsTouchScreen);
+
   useEffect(() => {
     // Check if using a touch control device, show/hide joystick
     if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {

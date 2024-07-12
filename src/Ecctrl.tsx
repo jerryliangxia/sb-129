@@ -141,6 +141,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     ref
   ) => {
     const curHealth = useGame((state) => state.curHealth);
+    const isTouchScreen = useGame((state) => state.isTouchScreen);
     const overlayVisible = useGame((state) => state.overlayVisible);
     const characterRef =
       (ref as RefObject<RapierRigidBody>) || useRef<RapierRigidBody>();
@@ -1021,7 +1022,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           // Check if the left mouse button was clicked
           if (event.button === 0) {
             // 0 is the button code for the left mouse button
-            animated && action7Animation();
+            animated && !isTouchScreen && action7Animation();
           }
         };
 
