@@ -487,7 +487,6 @@ export default function CharacterModel(props: CharacterModelProps) {
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
-      (curAnimation === animationSet.action1 && isTouchScreen) ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4
@@ -496,13 +495,9 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
       }
-      if (curAnimation === animationSet.action1 && isTouchScreen) {
-        clarinet.visible = false;
-        squidGun.visible = true;
-      }
     } else if (
       curAnimation === animationSet.action7 ||
-      (!isTouchScreen && curAnimation === animationSet.action1)
+      curAnimation === animationSet.action1
     ) {
       squidGun.visible = true;
       clarinet.visible = false;
@@ -547,7 +542,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       // Move hand collider back to initial position after action
       if (
         curAnimation === animationSet.action7 ||
-        (curAnimation === animationSet.action1 && isTouchScreen)
+        curAnimation === animationSet.action1
       ) {
         squidGun.visible = false;
         clarinet.visible = true;

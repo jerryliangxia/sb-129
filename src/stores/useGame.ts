@@ -120,12 +120,9 @@ export const useGame = /* @__PURE__ */ create(
       walk: () => {
         set((state) => {
           if (
-            (state.curAnimation !== state.animationSet.action7 &&
-              state.curAnimation !== state.animationSet.action4) ||
-            !(
-              state.curAnimation === state.animationSet.action1 &&
-              get().isTouchScreen
-            )
+            (state.curAnimation !== state.animationSet.action7 ||
+              state.curAnimation !== state.animationSet.action1) &&
+            state.curAnimation !== state.animationSet.action4
           ) {
             return { curAnimation: state.animationSet.walk };
           }
@@ -136,12 +133,9 @@ export const useGame = /* @__PURE__ */ create(
       run: () => {
         set((state) => {
           if (
-            (state.curAnimation !== state.animationSet.action7 &&
-              state.curAnimation !== state.animationSet.action4) ||
-            !(
-              state.curAnimation === state.animationSet.action1 &&
-              get().isTouchScreen
-            )
+            (state.curAnimation !== state.animationSet.action7 ||
+              state.curAnimation !== state.animationSet.action1) &&
+            state.curAnimation !== state.animationSet.action4
           ) {
             return { curAnimation: state.animationSet.run };
           }
@@ -182,13 +176,14 @@ export const useGame = /* @__PURE__ */ create(
       action1: () => {
         if (get().curHealth <= 0) return;
         set((state) => {
-          if (
-            state.curAnimation === state.animationSet.idle ||
-            state.curAnimation === state.animationSet.walk ||
-            state.curAnimation === state.animationSet.run
-          ) {
-            return { curAnimation: state.animationSet.action1 };
-          }
+          // if (
+          //   state.curAnimation === state.animationSet.idle
+          //   ||
+          //   state.curAnimation === state.animationSet.walk ||
+          //   state.curAnimation === state.animationSet.run
+          // ) {
+          return { curAnimation: state.animationSet.action1 };
+          // }
           return {};
         });
       },
