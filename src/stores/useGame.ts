@@ -122,8 +122,10 @@ export const useGame = /* @__PURE__ */ create(
           if (
             (state.curAnimation !== state.animationSet.action7 &&
               state.curAnimation !== state.animationSet.action4) ||
-            (state.curAnimation !== state.animationSet.action1 &&
-              get().isTouchScreen)
+            !(
+              state.curAnimation === state.animationSet.action1 &&
+              get().isTouchScreen
+            )
           ) {
             return { curAnimation: state.animationSet.walk };
           }
@@ -136,8 +138,10 @@ export const useGame = /* @__PURE__ */ create(
           if (
             (state.curAnimation !== state.animationSet.action7 &&
               state.curAnimation !== state.animationSet.action4) ||
-            (state.curAnimation !== state.animationSet.action1 &&
-              get().isTouchScreen)
+            !(
+              state.curAnimation === state.animationSet.action1 &&
+              get().isTouchScreen
+            )
           ) {
             return { curAnimation: state.animationSet.run };
           }
