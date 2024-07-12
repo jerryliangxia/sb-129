@@ -987,7 +987,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           // Check if the left mouse button was clicked
           if (event.button === 0) {
             // 0 is the button code for the left mouse button
-            animated && !isTouchScreen && action7Animation();
+            animated && !isTouchScreen && !overlayVisible && action7Animation();
           }
         };
 

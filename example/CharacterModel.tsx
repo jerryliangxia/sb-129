@@ -82,6 +82,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   /**
    * Character animations setup
    */
+  const isTouchScreen = useGame((state) => state.isTouchScreen);
   const curAnimation = useGame((state) => state.curAnimation);
   const setCurAnimation = useGame((state) => state.setCurAnimation);
   const setCurPosition = useGame((state) => state.setCurPosition);
@@ -107,7 +108,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "C_JumpIdle",
     jumpLand: "C_JumpLand",
     fall: "C_JumpIdle",
-    action1: "C_Shoot",
+    action1: isTouchScreen ? "C_Shoot_Mobile" : "C_Shoot",
     action2: "C_HeadButt",
     action3: "C_Kick",
     action4: "C_Attack",
@@ -212,7 +213,6 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   useEffect(() => {
     if (curHealth > 10) {
-      console.log("health > 10");
       // Stop any death animations and reset character state
       const fallAction = actions[animationSet.action5];
       fallAction?.stop();
@@ -235,7 +235,6 @@ export default function CharacterModel(props: CharacterModelProps) {
     clarinet.visible = true;
     squidGun.visible = false;
 
-    // Example usage of applyBoneFiltering
     if (actions["C_Shoot"]) {
       applyBoneFiltering(actions["C_Shoot"], {
         excludeBones: [
@@ -488,6 +487,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
+      (curAnimation === animationSet.action1 && isTouchScreen) ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4
@@ -496,9 +496,13 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
       }
+      if (curAnimation === animationSet.action1 && isTouchScreen) {
+        clarinet.visible = false;
+        squidGun.visible = true;
+      }
     } else if (
       curAnimation === animationSet.action7 ||
-      curAnimation === animationSet.action1
+      (!isTouchScreen && curAnimation === animationSet.action1)
     ) {
       squidGun.visible = true;
       clarinet.visible = false;
@@ -543,7 +547,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       // Move hand collider back to initial position after action
       if (
         curAnimation === animationSet.action7 ||
-        curAnimation === animationSet.action1
+        (curAnimation === animationSet.action1 && isTouchScreen)
       ) {
         squidGun.visible = false;
         clarinet.visible = true;
