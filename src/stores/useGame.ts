@@ -184,7 +184,11 @@ export const useGame = /* @__PURE__ */ create(
       action1: () => {
         if (get().curHealth <= 0) return;
         set((state) => {
-          if (state.curAnimation === state.animationSet.idle) {
+          if (
+            state.curAnimation === state.animationSet.idle ||
+            state.curAnimation === state.animationSet.walk ||
+            state.curAnimation === state.animationSet.run
+          ) {
             return { curAnimation: state.animationSet.action1 };
           }
           return {};
