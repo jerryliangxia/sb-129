@@ -123,7 +123,8 @@ export const useGame = /* @__PURE__ */ create(
       walk: () => {
         set((state) => {
           if (
-            state.curAnimation !== state.animationSet.action7 &&
+            (state.curAnimation !== state.animationSet.action7 ||
+              state.curAnimation !== state.animationSet.action1) &&
             state.curAnimation !== state.animationSet.action4
           ) {
             return { curAnimation: state.animationSet.walk };
@@ -135,7 +136,8 @@ export const useGame = /* @__PURE__ */ create(
       run: () => {
         set((state) => {
           if (
-            state.curAnimation !== state.animationSet.action7 &&
+            (state.curAnimation !== state.animationSet.action7 ||
+              state.curAnimation !== state.animationSet.action1) &&
             state.curAnimation !== state.animationSet.action4
           ) {
             return { curAnimation: state.animationSet.run };

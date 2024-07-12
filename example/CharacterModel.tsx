@@ -107,8 +107,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "C_JumpIdle",
     jumpLand: "C_JumpLand",
     fall: "C_JumpIdle",
-    action1: "C_HeadButt",
-    action2: "C_JumpIdle",
+    action1: "C_Shoot",
+    action2: "C_HeadButt",
     action3: "C_Kick",
     action4: "C_Attack",
     action5: "C_Fall",
@@ -488,7 +488,6 @@ export default function CharacterModel(props: CharacterModelProps) {
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
-      curAnimation === animationSet.action1 ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4
@@ -497,7 +496,10 @@ export default function CharacterModel(props: CharacterModelProps) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
       }
-    } else if (curAnimation === animationSet.action7) {
+    } else if (
+      curAnimation === animationSet.action7 ||
+      curAnimation === animationSet.action1
+    ) {
       squidGun.visible = true;
       clarinet.visible = false;
       setPunchEffectProp((prev) => ({
@@ -532,7 +534,10 @@ export default function CharacterModel(props: CharacterModelProps) {
 
     return () => {
       // Move hand collider back to initial position after action
-      if (curAnimation === animationSet.action7) {
+      if (
+        curAnimation === animationSet.action7 ||
+        curAnimation === animationSet.action1
+      ) {
         squidGun.visible = false;
         clarinet.visible = true;
       }
