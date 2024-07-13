@@ -502,10 +502,7 @@ export default function CharacterModel(props: CharacterModelProps) {
         squidGun.visible = true;
         clarinet.visible = false;
       }
-    } else if (
-      curAnimation === animationSet.action7 ||
-      curAnimation === animationSet.action1
-    ) {
+    } else if (curAnimation === animationSet.action7) {
       squidGun.visible = true;
       clarinet.visible = false;
       setPunchEffectProp((prev) => ({
@@ -513,7 +510,16 @@ export default function CharacterModel(props: CharacterModelProps) {
         visible: true,
         play: true,
       }));
-      if (topHalfAction && bottomHalfAction) {
+      if (isTouchScreen) {
+        if (action) {
+          action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
+          action.clampWhenFinished = true;
+        }
+        if (curAnimation === animationSet.action7 && isTouchScreen) {
+          squidGun.visible = true;
+          clarinet.visible = false;
+        }
+      } else if (topHalfAction && bottomHalfAction) {
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
         topHalfAction.clampWhenFinished = true;
