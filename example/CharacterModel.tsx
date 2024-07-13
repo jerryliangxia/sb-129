@@ -108,13 +108,13 @@ export default function CharacterModel(props: CharacterModelProps) {
     jumpIdle: "C_JumpIdle",
     jumpLand: "C_JumpLand",
     fall: "C_JumpIdle",
-    action1: isTouchScreen ? "C_Shoot_Mobile" : "C_Shoot",
-    action2: "C_HeadButt",
+    action1: "C_Shoot", // Negligible
+    action2: curAnimation === "C_Idle" ? "C_Kick" : "C_HeadButt",
     action3: "C_Kick",
     action4: "C_Attack",
     action5: "Fall",
     action6: "C_Death",
-    action7: "C_Shoot",
+    action7: isTouchScreen ? "C_Shoot_Mobile" : "C_Shoot",
   };
 
   useFrame((state, delta) => {
@@ -477,7 +477,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     const action = actions[curAnimation ? curAnimation : animationSet.idle];
 
     // For jump and jump land animation, only play once and clamp when finish
-    let topHalfAction = actions[animationSet.action7];
+    let topHalfAction = actions["C_Shoot"];
     // Just reverse the actions
     let bottomHalfAction =
       shift && anyWASDPressed
@@ -489,6 +489,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     if (
       curAnimation === animationSet.jump ||
       curAnimation === animationSet.jumpLand ||
+      (curAnimation === animationSet.action1 && isTouchScreen) ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4 ||
@@ -510,16 +511,7 @@ export default function CharacterModel(props: CharacterModelProps) {
         visible: true,
         play: true,
       }));
-      if (isTouchScreen) {
-        if (action) {
-          action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
-          action.clampWhenFinished = true;
-        }
-        if (curAnimation === animationSet.action7 && isTouchScreen) {
-          squidGun.visible = true;
-          clarinet.visible = false;
-        }
-      } else if (topHalfAction && bottomHalfAction) {
+      if (topHalfAction && bottomHalfAction) {
         topHalfAction.syncWith(bottomHalfAction);
         topHalfAction.play();
         topHalfAction.clampWhenFinished = true;
@@ -553,10 +545,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
     return () => {
       // Move hand collider back to initial position after action
-      if (
-        curAnimation === animationSet.action7 ||
-        curAnimation === animationSet.action1
-      ) {
+      if (curAnimation === animationSet.action7) {
         squidGun.visible = false;
         clarinet.visible = true;
       }
