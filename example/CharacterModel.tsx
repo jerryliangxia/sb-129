@@ -491,11 +491,16 @@ export default function CharacterModel(props: CharacterModelProps) {
       curAnimation === animationSet.jumpLand ||
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
-      curAnimation === animationSet.action4
+      curAnimation === animationSet.action4 ||
+      (curAnimation === animationSet.action7 && isTouchScreen)
     ) {
       if (action) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();
         action.clampWhenFinished = true;
+      }
+      if (curAnimation === animationSet.action7 && isTouchScreen) {
+        squidGun.visible = true;
+        clarinet.visible = false;
       }
     } else if (
       curAnimation === animationSet.action7 ||
