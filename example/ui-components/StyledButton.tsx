@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Text } from "@radix-ui/themes";
+import { useGame } from "../../src/stores/useGame";
 
 export const StyledButton = (props: any) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isTouchScreen = useGame((state) => state.isTouchScreen);
 
   const baseColor = "#35C7D2";
   const hoverColor = "#39D6E1";
@@ -25,7 +27,7 @@ export const StyledButton = (props: any) => {
       onClick={props.onClick}
     >
       <Text size="2" style={{ color: "white" }}>
-        {props.children}
+        {isTouchScreen ? "" : props.children}
       </Text>
       <div
         style={{
