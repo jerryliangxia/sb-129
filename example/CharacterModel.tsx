@@ -359,11 +359,21 @@ export default function CharacterModel(props: CharacterModelProps) {
   const bodyRot = useMemo(() => new THREE.Quaternion(), []);
   let rightHand: THREE.Object3D | null = null;
 
+  const bottomHeadRef = useRef<THREE.Mesh>(null);
+  const bottomHeadColliderRef = useRef<RapierCollider | null>(null);
+  let bottomHead: THREE.Object3D | null = null;
+
+  const frontToesTipRRef = useRef<THREE.Mesh>(null);
+  const frontToesTipRColliderRef = useRef<RapierCollider | null>(null);
+  let frontToesTipR: THREE.Object3D | null = null;
+
   useEffect(() => {
     group?.current?.traverse((obj) => {
       // Prepare both hands bone object
       if (obj instanceof THREE.Bone) {
         if (obj.name === "HandR") rightHand = obj;
+        if (obj.name === "BottomHead") bottomHead = obj;
+        if (obj.name === "FrontToesTipR") frontToesTipR = obj;
       }
     });
   });
@@ -463,6 +473,42 @@ export default function CharacterModel(props: CharacterModelProps) {
         }
         rightHandColliderRef?.current?.setTranslationWrtParent(
           rightHandRef?.current?.position || new THREE.Vector3()
+        );
+      }
+    }
+
+    if (curAnimation === animationSet.action2) {
+      if (bottomHead) {
+        bottomHead.getWorldPosition(rightHandPos);
+        group?.current?.getWorldPosition(bodyPos);
+        group?.current?.getWorldQuaternion(bodyRot);
+      }
+
+      if (bottomHeadColliderRef.current) {
+        bottomHeadRef?.current?.position
+          .copy(rightHandPos)
+          .sub(bodyPos)
+          .applyQuaternion(bodyRot.conjugate());
+        bottomHeadColliderRef?.current?.setTranslationWrtParent(
+          bottomHeadRef?.current?.position || new THREE.Vector3()
+        );
+      }
+    }
+
+    if (curAnimation === animationSet.action3) {
+      if (frontToesTipR) {
+        frontToesTipR.getWorldPosition(rightHandPos);
+        group?.current?.getWorldPosition(bodyPos);
+        group?.current?.getWorldQuaternion(bodyRot);
+      }
+
+      if (frontToesTipRColliderRef.current) {
+        frontToesTipRRef?.current?.position
+          .copy(rightHandPos)
+          .sub(bodyPos)
+          .applyQuaternion(bodyRot.conjugate());
+        frontToesTipRColliderRef?.current?.setTranslationWrtParent(
+          frontToesTipRRef?.current?.position || new THREE.Vector3()
         );
       }
     }
@@ -582,9 +628,50 @@ export default function CharacterModel(props: CharacterModelProps) {
             }}
           />
         </RigidBody>
-      ) : (
-        <></>
-      )}
+      ) : null}
+
+      {/* Bottom head collider */}
+      <mesh ref={bottomHeadRef} />
+      {curAnimation === animationSet.action2 ? (
+        <RigidBody userData={{ type: "headbutt" }}>
+          <CapsuleCollider
+            args={[0.4, 0.2]} // Tweak [0.2-0.8, 0.2]
+            position={[0, 0, 3]} // Must be [0,0,x]
+            rotation={[Math.PI / 2, 0, 0]}
+            ref={bottomHeadColliderRef}
+            onCollisionEnter={(e) => {
+              if (curAnimation === animationSet.action2) {
+                setPunchEffectProp((prev) => ({
+                  ...prev,
+                  visible: true,
+                  play: true,
+                }));
+              }
+            }}
+          />
+        </RigidBody>
+      ) : null}
+
+      {/* Front toes tip collider */}
+      <mesh ref={frontToesTipRRef} />
+      {curAnimation === animationSet.action3 ? (
+        <RigidBody userData={{ type: "kick" }}>
+          <CapsuleCollider
+            args={[0.1, 0.2]}
+            rotation={[Math.PI / 2, 0, 0]}
+            ref={frontToesTipRColliderRef}
+            onCollisionEnter={(e) => {
+              if (curAnimation === animationSet.action3) {
+                setPunchEffectProp((prev) => ({
+                  ...prev,
+                  visible: true,
+                  play: true,
+                }));
+              }
+            }}
+          />
+        </RigidBody>
+      ) : null}
 
       {/* Character model */}
       {/* Used as a spring for the speed of rotation */}

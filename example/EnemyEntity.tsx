@@ -167,7 +167,12 @@ export default function EnemyEntity({ position, ...props }) {
         };
         if (verifyLinvel(body)) body.current.applyImpulse(impulse);
         const type = (event.collider as any)._parent?.userData.type;
-        if (type === "shotCube" || type === "clarinet") {
+        if (
+          type === "shotCube" ||
+          type === "clarinet" ||
+          type === "headbutt" ||
+          type === "kick"
+        ) {
           if (type === "shotCube") {
             (event.collider as any)._parent.userData.type = null;
           } else if (isBeingHit || isDying) {
