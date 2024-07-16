@@ -16,6 +16,7 @@ export default function Overlay() {
   const setCurHealth = useGame((state) => state.setCurHealth);
   const setCurAnimation = useGame((state) => state.setCurAnimation);
   const animationSet = useGame((state) => state.animationSet);
+  const isTouchScreen = useGame((state) => state.isTouchScreen);
 
   const handleClick = () => {
     if (isFullScreen) {
@@ -71,7 +72,7 @@ export default function Overlay() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "30%",
+            width: isTouchScreen ? "80%" : "30%",
             height: "30%",
             borderRadius: "10px",
             backgroundColor: "rgba(0,0,0,0.5)",

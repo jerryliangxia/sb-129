@@ -27,7 +27,7 @@ export const StyledButton = (props: any) => {
       onClick={props.onClick}
     >
       <Text size="2" style={{ color: "white" }}>
-        {isTouchScreen ? "" : props.children}
+        {props.children}
       </Text>
       <div
         style={{
