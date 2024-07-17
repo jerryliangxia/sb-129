@@ -88,7 +88,7 @@ export default function Overlay() {
             style={{ maxWidth: "80%", maxHeight: "100%", objectFit: "contain" }}
           />
           <StyledButton onClick={() => handleClick()}>
-            {curHealth > 0 ? "Enter" : "Restart"}
+            {curHealth > 0 ? "Play" : "Restart"}
           </StyledButton>
           <StyledSwitch
             checked={isFullScreen}
