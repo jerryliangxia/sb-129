@@ -15,6 +15,7 @@ import { useControls } from "leva";
 import CharacterModel from "./CharacterModel";
 import React from "react";
 import Enemies from "./Enemies";
+import Corals from "./Corals";
 
 export default function Experience() {
   /**
@@ -96,6 +97,9 @@ export default function Experience() {
 
         {/* Floor */}
         <Floor />
+
+        {/* Corals */}
+        <Corals />
 
         {/* Shoting cubes */}
         <ShotCube />
