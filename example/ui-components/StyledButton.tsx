@@ -37,9 +37,11 @@ export const StyledButton = (props: any) => {
       }}
       onClick={props.onClick}
     >
-      <Text size="2" style={{ color: "white" }}>
-        {props.children}
-      </Text>
+      <img
+        src="/playtext.png"
+        alt="Play Text"
+        style={{ maxWidth: "60%", height: "auto" }} // Ensure the image takes up 60% of the width max
+      />
       <div
         style={{
           position: "absolute",
