@@ -13,7 +13,7 @@ export const StyledSwitch = (props: any) => {
         checked={props.checked}
         onCheckedChange={props.onCheckedChange}
         style={{
-          backgroundColor: props.checked ? "#35C7D2" : "transparent",
+          backgroundColor: props.checked ? "#183B4A" : "transparent",
           borderRadius: "9999px",
           width: "42px",
           height: "25px",
@@ -39,9 +39,21 @@ export const StyledSwitch = (props: any) => {
           }}
         />
       </SwitchPrimitive.Root>
-      <Text style={{ color: "white" }} size="1">
-        Fullscreen
-      </Text>
+      <div
+        style={{
+          width: "84px", // Match the width of the SwitchPrimitive.Thumb
+          height: "21px", // Match the height of the SwitchPrimitive.Thumb
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <img
+          src="/fullscreentext.png"
+          alt="Fullscreen Text"
+          style={{ maxWidth: "100%", maxHeight: "100%" }} // Ensure the image fits within the container
+        />
+      </div>
     </Flex>
   );
 };

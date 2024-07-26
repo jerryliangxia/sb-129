@@ -82,20 +82,26 @@ export default function Overlay() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
           }}
         >
           <img
-            src="/sb-129-hd.png"
+            src="/sb-129-drop.png"
             alt="Logo"
-            style={{ maxWidth: "80%", maxHeight: "100%", objectFit: "contain" }}
+            style={{ maxWidth: "70%", maxHeight: "90%", objectFit: "contain" }}
           />
-          <StyledButton onClick={() => handleClick()}>
+          <StyledButton
+            onClick={() => handleClick()}
+            style={{ height: "auto" }}
+          >
             {curHealth > 0 ? "Play" : "Restart"}
           </StyledButton>
-          <StyledSwitch
-            checked={isFullScreen}
-            onCheckedChange={setIsFullScreen}
-          />
+          {!isTouchScreen && (
+            <StyledSwitch
+              checked={isFullScreen}
+              onCheckedChange={setIsFullScreen}
+            />
+          )}
         </Flex>
       )}
     </>

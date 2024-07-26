@@ -19,11 +19,13 @@ export const StyledButton = (props: any) => {
       onMouseUp={() => setIsClicked(false)}
       style={{
         width: "35%",
-        aspectRatio: "3 / 2", // Maintain a 3:2 ratio
+        aspectRatio: "3.15 / 2", // Maintain a 3:2 ratio, 3.215 for iPad
         backgroundImage: "url('/PlayButton.png')", // Set the background image
         backgroundSize: "cover", // Ensure the image covers the entire button
+        backgroundPosition: "center",
         backgroundRepeat: "no-repeat", // Prevent the image from repeating
         borderRadius: "8px",
+        borderColor: "black",
         cursor: "pointer",
         color: "#FFFFFF",
         padding: "8px 20px",
@@ -34,13 +36,14 @@ export const StyledButton = (props: any) => {
           : isHovered
           ? "brightness(110%)"
           : "brightness(100%)", // Darken on hover and click
+        boxShadow: "0 8px 16px rgba(29, 64, 79, 0.5)", // Add drop shadow
       }}
       onClick={props.onClick}
     >
       <img
         src="/playtext.png"
         alt="Play Text"
-        style={{ maxWidth: "60%", height: "auto" }} // Ensure the image takes up 60% of the width max
+        style={{ maxWidth: "50%", height: "auto" }} // Ensure the image takes up 60% of the width max
       />
       <div
         style={{
