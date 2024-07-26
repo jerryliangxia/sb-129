@@ -11,7 +11,7 @@ import RigidObjects from "./RigidObjects";
 import FloatingPlatform from "./FloatingPlatform";
 import DynamicPlatforms from "./DynamicPlatforms";
 import ShotCube from "./ShotCube";
-import { useControls } from "leva";
+// import { useControls } from "leva";
 import CharacterModel from "./CharacterModel";
 import React from "react";
 import Enemies from "./Enemies";
@@ -21,10 +21,13 @@ export default function Experience() {
   /**
    * Debug settings
    */
-  const { physics, disableFollowCam } = useControls("World Settings", {
-    physics: false,
-    disableFollowCam: false,
-  });
+  // const { physics, disableFollowCam } = useControls("World Settings", {
+  //   physics: false,
+  //   disableFollowCam: false,
+  // });
+
+  const physics = false;
+  const disableFollowCam = false;
 
   /**
    * Keyboard control preset
@@ -70,22 +73,22 @@ export default function Experience() {
         </KeyboardControls>
 
         {/* Rough plan */}
-        <RoughPlane />
+        {/* <RoughPlane /> */}
 
         {/* Slopes and stairs */}
-        <Slopes />
+        {/* <Slopes /> */}
 
         {/* Small steps */}
-        <Steps />
+        {/* <Steps /> */}
 
         {/* Rigid body objects */}
-        <RigidObjects />
+        {/* <RigidObjects /> */}
 
         {/* Floating platform */}
-        <FloatingPlatform />
+        {/* <FloatingPlatform /> */}
 
         {/* Dynamic platforms */}
-        <DynamicPlatforms />
+        {/* <DynamicPlatforms /> */}
 
         {/* Floor */}
         <Floor />

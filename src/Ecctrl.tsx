@@ -19,7 +19,7 @@ import {
   useState,
 } from "react";
 import * as THREE from "three";
-import { useControls } from "leva";
+// import { useControls } from "leva";
 import { useFollowCam } from "./hooks/useFollowCam";
 import { useGame } from "./stores/useGame";
 import { useJoystickControls } from "./stores/useJoystickControls";
@@ -211,258 +211,258 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     /**
      * Debug settings
      */
-    let characterControlsDebug = null;
-    let floatingRayDebug = null;
-    let slopeRayDebug = null;
-    let autoBalanceForceDebug = null;
-    if (debug) {
-      // Character Controls
-      characterControlsDebug = useControls(
-        "Character Controls",
-        {
-          maxVelLimit: {
-            value: maxVelLimit,
-            min: 0,
-            max: 10,
-            step: 0.01,
-          },
-          turnVelMultiplier: {
-            value: turnVelMultiplier,
-            min: 0,
-            max: 1,
-            step: 0.01,
-          },
-          turnSpeed: {
-            value: turnSpeed,
-            min: 5,
-            max: 30,
-            step: 0.1,
-          },
-          sprintMult: {
-            value: sprintMult,
-            min: 1,
-            max: 5,
-            step: 0.01,
-          },
-          jumpVel: {
-            value: jumpVel,
-            min: 0,
-            max: 10,
-            step: 0.01,
-          },
-          jumpForceToGroundMult: {
-            value: jumpForceToGroundMult,
-            min: 0,
-            max: 80,
-            step: 0.1,
-          },
-          slopJumpMult: {
-            value: slopJumpMult,
-            min: 0,
-            max: 1,
-            step: 0.01,
-          },
-          sprintJumpMult: {
-            value: sprintJumpMult,
-            min: 1,
-            max: 3,
-            step: 0.01,
-          },
-          airDragMultiplier: {
-            value: airDragMultiplier,
-            min: 0,
-            max: 1,
-            step: 0.01,
-          },
-          dragDampingC: {
-            value: dragDampingC,
-            min: 0,
-            max: 0.5,
-            step: 0.01,
-          },
-          accDeltaTime: {
-            value: accDeltaTime,
-            min: 0,
-            max: 50,
-            step: 1,
-          },
-          rejectVelMult: {
-            value: rejectVelMult,
-            min: 0,
-            max: 10,
-            step: 0.1,
-          },
-          moveImpulsePointY: {
-            value: moveImpulsePointY,
-            min: 0,
-            max: 3,
-            step: 0.1,
-          },
-          camFollowMult: {
-            value: camFollowMult,
-            min: 0,
-            max: 15,
-            step: 0.1,
-          },
-        },
-        { collapsed: true }
-      );
-      // Apply debug values
-      maxVelLimit = characterControlsDebug.maxVelLimit;
-      turnVelMultiplier = characterControlsDebug.turnVelMultiplier;
-      turnSpeed = characterControlsDebug.turnSpeed;
-      sprintMult = characterControlsDebug.sprintMult;
-      jumpVel = characterControlsDebug.jumpVel;
-      jumpForceToGroundMult = characterControlsDebug.jumpForceToGroundMult;
-      slopJumpMult = characterControlsDebug.slopJumpMult;
-      sprintJumpMult = characterControlsDebug.sprintJumpMult;
-      airDragMultiplier = characterControlsDebug.airDragMultiplier;
-      dragDampingC = characterControlsDebug.dragDampingC;
-      accDeltaTime = characterControlsDebug.accDeltaTime;
-      rejectVelMult = characterControlsDebug.rejectVelMult;
-      moveImpulsePointY = characterControlsDebug.moveImpulsePointY;
-      camFollowMult = characterControlsDebug.camFollowMult;
+    // let characterControlsDebug = null;
+    // let floatingRayDebug = null;
+    // let slopeRayDebug = null;
+    // let autoBalanceForceDebug = null;
+    // if (debug) {
+    // Character Controls
+    // characterControlsDebug = useControls(
+    //   "Character Controls",
+    //   {
+    //     maxVelLimit: {
+    //       value: maxVelLimit,
+    //       min: 0,
+    //       max: 10,
+    //       step: 0.01,
+    //     },
+    //     turnVelMultiplier: {
+    //       value: turnVelMultiplier,
+    //       min: 0,
+    //       max: 1,
+    //       step: 0.01,
+    //     },
+    //     turnSpeed: {
+    //       value: turnSpeed,
+    //       min: 5,
+    //       max: 30,
+    //       step: 0.1,
+    //     },
+    //     sprintMult: {
+    //       value: sprintMult,
+    //       min: 1,
+    //       max: 5,
+    //       step: 0.01,
+    //     },
+    //     jumpVel: {
+    //       value: jumpVel,
+    //       min: 0,
+    //       max: 10,
+    //       step: 0.01,
+    //     },
+    //     jumpForceToGroundMult: {
+    //       value: jumpForceToGroundMult,
+    //       min: 0,
+    //       max: 80,
+    //       step: 0.1,
+    //     },
+    //     slopJumpMult: {
+    //       value: slopJumpMult,
+    //       min: 0,
+    //       max: 1,
+    //       step: 0.01,
+    //     },
+    //     sprintJumpMult: {
+    //       value: sprintJumpMult,
+    //       min: 1,
+    //       max: 3,
+    //       step: 0.01,
+    //     },
+    //     airDragMultiplier: {
+    //       value: airDragMultiplier,
+    //       min: 0,
+    //       max: 1,
+    //       step: 0.01,
+    //     },
+    //     dragDampingC: {
+    //       value: dragDampingC,
+    //       min: 0,
+    //       max: 0.5,
+    //       step: 0.01,
+    //     },
+    //     accDeltaTime: {
+    //       value: accDeltaTime,
+    //       min: 0,
+    //       max: 50,
+    //       step: 1,
+    //     },
+    //     rejectVelMult: {
+    //       value: rejectVelMult,
+    //       min: 0,
+    //       max: 10,
+    //       step: 0.1,
+    //     },
+    //     moveImpulsePointY: {
+    //       value: moveImpulsePointY,
+    //       min: 0,
+    //       max: 3,
+    //       step: 0.1,
+    //     },
+    //     camFollowMult: {
+    //       value: camFollowMult,
+    //       min: 0,
+    //       max: 15,
+    //       step: 0.1,
+    //     },
+    //   },
+    //   { collapsed: true }
+    // );
+    //   // Apply debug values
+    //   maxVelLimit = characterControlsDebug.maxVelLimit;
+    //   turnVelMultiplier = characterControlsDebug.turnVelMultiplier;
+    //   turnSpeed = characterControlsDebug.turnSpeed;
+    //   sprintMult = characterControlsDebug.sprintMult;
+    //   jumpVel = characterControlsDebug.jumpVel;
+    //   jumpForceToGroundMult = characterControlsDebug.jumpForceToGroundMult;
+    //   slopJumpMult = characterControlsDebug.slopJumpMult;
+    //   sprintJumpMult = characterControlsDebug.sprintJumpMult;
+    //   airDragMultiplier = characterControlsDebug.airDragMultiplier;
+    //   dragDampingC = characterControlsDebug.dragDampingC;
+    //   accDeltaTime = characterControlsDebug.accDeltaTime;
+    //   rejectVelMult = characterControlsDebug.rejectVelMult;
+    //   moveImpulsePointY = characterControlsDebug.moveImpulsePointY;
+    //   camFollowMult = characterControlsDebug.camFollowMult;
 
-      // Floating Ray
-      floatingRayDebug = useControls(
-        "Floating Ray",
-        {
-          rayOriginOffest: {
-            x: 0,
-            y: -capsuleHalfHeight,
-            z: 0,
-          },
-          rayHitForgiveness: {
-            value: rayHitForgiveness,
-            min: 0,
-            max: 0.5,
-            step: 0.01,
-          },
-          rayLength: {
-            value: capsuleRadius + 2,
-            min: 0,
-            max: capsuleRadius + 10,
-            step: 0.01,
-          },
-          rayDir: { x: 0, y: -1, z: 0 },
-          floatingDis: {
-            value: capsuleRadius + floatHeight,
-            min: 0,
-            max: capsuleRadius + 2,
-            step: 0.01,
-          },
-          springK: {
-            value: springK,
-            min: 0,
-            max: 5,
-            step: 0.01,
-          },
-          dampingC: {
-            value: dampingC,
-            min: 0,
-            max: 3,
-            step: 0.01,
-          },
-        },
-        { collapsed: true }
-      );
-      // Apply debug values
-      rayOriginOffest = floatingRayDebug.rayOriginOffest;
-      rayHitForgiveness = floatingRayDebug.rayHitForgiveness;
-      rayLength = floatingRayDebug.rayLength;
-      rayDir = floatingRayDebug.rayDir;
-      floatingDis = floatingRayDebug.floatingDis;
-      springK = floatingRayDebug.springK;
-      dampingC = floatingRayDebug.dampingC;
+    //   // Floating Ray
+    //   floatingRayDebug = useControls(
+    //     "Floating Ray",
+    //     {
+    //       rayOriginOffest: {
+    //         x: 0,
+    //         y: -capsuleHalfHeight,
+    //         z: 0,
+    //       },
+    //       rayHitForgiveness: {
+    //         value: rayHitForgiveness,
+    //         min: 0,
+    //         max: 0.5,
+    //         step: 0.01,
+    //       },
+    //       rayLength: {
+    //         value: capsuleRadius + 2,
+    //         min: 0,
+    //         max: capsuleRadius + 10,
+    //         step: 0.01,
+    //       },
+    //       rayDir: { x: 0, y: -1, z: 0 },
+    //       floatingDis: {
+    //         value: capsuleRadius + floatHeight,
+    //         min: 0,
+    //         max: capsuleRadius + 2,
+    //         step: 0.01,
+    //       },
+    //       springK: {
+    //         value: springK,
+    //         min: 0,
+    //         max: 5,
+    //         step: 0.01,
+    //       },
+    //       dampingC: {
+    //         value: dampingC,
+    //         min: 0,
+    //         max: 3,
+    //         step: 0.01,
+    //       },
+    //     },
+    //     { collapsed: true }
+    //   );
+    //   // Apply debug values
+    //   rayOriginOffest = floatingRayDebug.rayOriginOffest;
+    //   rayHitForgiveness = floatingRayDebug.rayHitForgiveness;
+    //   rayLength = floatingRayDebug.rayLength;
+    //   rayDir = floatingRayDebug.rayDir;
+    //   floatingDis = floatingRayDebug.floatingDis;
+    //   springK = floatingRayDebug.springK;
+    //   dampingC = floatingRayDebug.dampingC;
 
-      // Slope Ray
-      slopeRayDebug = useControls(
-        "Slope Ray",
-        {
-          showSlopeRayOrigin: false,
-          slopeMaxAngle: {
-            value: slopeMaxAngle,
-            min: 0,
-            max: 1.57,
-            step: 0.01,
-          },
-          slopeRayOriginOffest: {
-            value: capsuleRadius,
-            min: 0,
-            max: capsuleRadius + 3,
-            step: 0.01,
-          },
-          slopeRayLength: {
-            value: capsuleRadius + 3,
-            min: 0,
-            max: capsuleRadius + 13,
-            step: 0.01,
-          },
-          slopeRayDir: { x: 0, y: -1, z: 0 },
-          slopeUpExtraForce: {
-            value: slopeUpExtraForce,
-            min: 0,
-            max: 5,
-            step: 0.01,
-          },
-          slopeDownExtraForce: {
-            value: slopeDownExtraForce,
-            min: 0,
-            max: 5,
-            step: 0.01,
-          },
-        },
-        { collapsed: true }
-      );
-      // Apply debug values
-      showSlopeRayOrigin = slopeRayDebug.showSlopeRayOrigin;
-      slopeMaxAngle = slopeRayDebug.slopeMaxAngle;
-      slopeRayLength = slopeRayDebug.slopeRayLength;
-      slopeRayDir = slopeRayDebug.slopeRayDir;
-      slopeUpExtraForce = slopeRayDebug.slopeUpExtraForce;
-      slopeDownExtraForce = slopeRayDebug.slopeDownExtraForce;
+    //   // Slope Ray
+    //   slopeRayDebug = useControls(
+    //     "Slope Ray",
+    //     {
+    //       showSlopeRayOrigin: false,
+    //       slopeMaxAngle: {
+    //         value: slopeMaxAngle,
+    //         min: 0,
+    //         max: 1.57,
+    //         step: 0.01,
+    //       },
+    //       slopeRayOriginOffest: {
+    //         value: capsuleRadius,
+    //         min: 0,
+    //         max: capsuleRadius + 3,
+    //         step: 0.01,
+    //       },
+    //       slopeRayLength: {
+    //         value: capsuleRadius + 3,
+    //         min: 0,
+    //         max: capsuleRadius + 13,
+    //         step: 0.01,
+    //       },
+    //       slopeRayDir: { x: 0, y: -1, z: 0 },
+    //       slopeUpExtraForce: {
+    //         value: slopeUpExtraForce,
+    //         min: 0,
+    //         max: 5,
+    //         step: 0.01,
+    //       },
+    //       slopeDownExtraForce: {
+    //         value: slopeDownExtraForce,
+    //         min: 0,
+    //         max: 5,
+    //         step: 0.01,
+    //       },
+    //     },
+    //     { collapsed: true }
+    //   );
+    //   // Apply debug values
+    //   showSlopeRayOrigin = slopeRayDebug.showSlopeRayOrigin;
+    //   slopeMaxAngle = slopeRayDebug.slopeMaxAngle;
+    //   slopeRayLength = slopeRayDebug.slopeRayLength;
+    //   slopeRayDir = slopeRayDebug.slopeRayDir;
+    //   slopeUpExtraForce = slopeRayDebug.slopeUpExtraForce;
+    //   slopeDownExtraForce = slopeRayDebug.slopeDownExtraForce;
 
-      // AutoBalance Force
-      autoBalanceForceDebug = useControls(
-        "AutoBalance Force",
-        {
-          autoBalance: {
-            value: true,
-          },
-          autoBalanceSpringK: {
-            value: autoBalanceSpringK,
-            min: 0,
-            max: 5,
-            step: 0.01,
-          },
-          autoBalanceDampingC: {
-            value: autoBalanceDampingC,
-            min: 0,
-            max: 0.1,
-            step: 0.001,
-          },
-          autoBalanceSpringOnY: {
-            value: autoBalanceSpringOnY,
-            min: 0,
-            max: 5,
-            step: 0.01,
-          },
-          autoBalanceDampingOnY: {
-            value: autoBalanceDampingOnY,
-            min: 0,
-            max: 0.1,
-            step: 0.001,
-          },
-        },
-        { collapsed: true }
-      );
-      // Apply debug values
-      autoBalance = autoBalanceForceDebug.autoBalance;
-      autoBalanceSpringK = autoBalanceForceDebug.autoBalanceSpringK;
-      autoBalanceDampingC = autoBalanceForceDebug.autoBalanceDampingC;
-      autoBalanceSpringOnY = autoBalanceForceDebug.autoBalanceSpringOnY;
-      autoBalanceDampingOnY = autoBalanceForceDebug.autoBalanceDampingOnY;
-    }
+    //   // AutoBalance Force
+    //   autoBalanceForceDebug = useControls(
+    //     "AutoBalance Force",
+    //     {
+    //       autoBalance: {
+    //         value: true,
+    //       },
+    //       autoBalanceSpringK: {
+    //         value: autoBalanceSpringK,
+    //         min: 0,
+    //         max: 5,
+    //         step: 0.01,
+    //       },
+    //       autoBalanceDampingC: {
+    //         value: autoBalanceDampingC,
+    //         min: 0,
+    //         max: 0.1,
+    //         step: 0.001,
+    //       },
+    //       autoBalanceSpringOnY: {
+    //         value: autoBalanceSpringOnY,
+    //         min: 0,
+    //         max: 5,
+    //         step: 0.01,
+    //       },
+    //       autoBalanceDampingOnY: {
+    //         value: autoBalanceDampingOnY,
+    //         min: 0,
+    //         max: 0.1,
+    //         step: 0.001,
+    //       },
+    //     },
+    //     { collapsed: true }
+    //   );
+    //   // Apply debug values
+    //   autoBalance = autoBalanceForceDebug.autoBalance;
+    //   autoBalanceSpringK = autoBalanceForceDebug.autoBalanceSpringK;
+    //   autoBalanceDampingC = autoBalanceForceDebug.autoBalanceDampingC;
+    //   autoBalanceSpringOnY = autoBalanceForceDebug.autoBalanceSpringOnY;
+    //   autoBalanceDampingOnY = autoBalanceForceDebug.autoBalanceDampingOnY;
+    // }
 
     /**
      * Check if inside keyboardcontrols
