@@ -73,9 +73,11 @@ export default function Overlay() {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: isTouchScreen ? "80%" : "30%",
-            height: "30%",
+            aspectRatio: "3 / 2", // Updated line to maintain a 4:6 ratio
             borderRadius: "10px",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            backgroundImage: "url('/MenuBackground.png')", // Updated line
+            backgroundSize: "cover", // Ensure the image covers the entire background
+            backgroundRepeat: "no-repeat", // Prevent the image from repeating
             color: "white",
             display: "flex",
             justifyContent: "center",

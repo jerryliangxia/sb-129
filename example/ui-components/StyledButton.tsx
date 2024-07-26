@@ -4,25 +4,36 @@ import { useGame } from "../../src/stores/useGame";
 
 export const StyledButton = (props: any) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
   const isTouchScreen = useGame((state) => state.isTouchScreen);
 
-  const baseColor = "#35C7D2";
-  const hoverColor = "#39D6E1";
   return (
     <button
       className="Button"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setIsClicked(false);
+      }}
+      onMouseDown={() => setIsClicked(true)}
+      onMouseUp={() => setIsClicked(false)}
       style={{
         width: "35%",
-        height: "20%",
-        backgroundColor: isHovered ? hoverColor : baseColor,
-        borderRadius: "4px",
+        aspectRatio: "3 / 2", // Maintain a 3:2 ratio
+        backgroundImage: "url('/PlayButton.png')", // Set the background image
+        backgroundSize: "cover", // Ensure the image covers the entire button
+        backgroundRepeat: "no-repeat", // Prevent the image from repeating
+        borderRadius: "8px",
         cursor: "pointer",
         color: "#FFFFFF",
         padding: "8px 20px",
-        transition: "transform 0.3s ease, background-color 0.3s ease",
+        transition: "transform 0.3s ease, filter 0.3s ease",
         transform: isHovered ? "scale(1.1)" : "scale(1)",
+        filter: isClicked
+          ? "brightness(115%)"
+          : isHovered
+          ? "brightness(110%)"
+          : "brightness(100%)", // Darken on hover and click
       }}
       onClick={props.onClick}
     >
