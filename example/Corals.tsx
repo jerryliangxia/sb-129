@@ -15,10 +15,12 @@ import { useGLTF } from "@react-three/drei";
 
 const RADIUS = 300;
 const OBJECT_COUNT = 150;
+const RESTRICTED_RANGE = 5;
 
-function getRandomPosition(existingPositions, radius) {
+function getRandomPosition(existingPositions, radius, restrictedRange) {
   let position;
   let isOverlapping;
+  let isInRestrictedArea;
   do {
     position = new THREE.Vector3(
       Math.random() * radius - radius / 2,
@@ -28,7 +30,12 @@ function getRandomPosition(existingPositions, radius) {
     isOverlapping = existingPositions.some(
       (pos) => pos.distanceTo(position) < 10
     );
-  } while (isOverlapping);
+    isInRestrictedArea =
+      position.x >= -restrictedRange &&
+      position.x <= restrictedRange &&
+      position.z >= -restrictedRange &&
+      position.z <= restrictedRange;
+  } while (isOverlapping || isInRestrictedArea);
   return position;
 }
 

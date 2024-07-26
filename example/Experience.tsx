@@ -44,15 +44,7 @@ export default function Experience() {
 
   return (
     <>
-      <Perf position="top-left" minimal />
-
-      <Grid
-        args={[300, 300]}
-        sectionColor={"lightgray"}
-        cellColor={"gray"}
-        position={[0, -0.99, 0]}
-        userData={{ camExcludeCollision: true }} // this won't be collide by camera ray
-      />
+      {/* <Perf position="top-left" minimal /> */}
 
       <Lights />
 
