@@ -1,65 +1,155 @@
 import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
-import { RigidBody, CapsuleCollider } from "@react-three/rapier";
+import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
-const CORAL_TYPES = [
+const OBJECT_TYPES = [
+  {
+    geometry: "Cylinder018",
+    materials: [
+      "DarkCoralMaterial",
+      "Black",
+      "Rock",
+      "BlackOutline",
+      "UrchinBlack",
+      "SmallCoralMaterial",
+      "SmallCoralOutline",
+      "YellowSandOutline",
+    ],
+  },
+  {
+    geometry: "Plane104",
+    materials: [
+      "BlueSandOutline",
+      "YellowSandOutline",
+      "DarkCoralMaterial",
+      "Black",
+      "Rock",
+      "BlackOutline",
+      "SmallCoralMaterial",
+      "SmallCoralOutline",
+      "UrchinBlack",
+    ],
+  },
+  {
+    geometry: "Plane105",
+    materials: [
+      "BlueSandOutline",
+      "GreenSandOutline.001",
+      "Rock",
+      "BlackOutline",
+      "SmallCoralMaterial",
+      "SmallCoralOutline",
+      "UrchinBlack",
+      "Kelp",
+      "KelpOutline",
+    ],
+  },
+  {
+    geometry: "Plane106",
+    materials: [
+      "BlueSandOutline",
+      "TallCoralOutline",
+      "Kelp",
+      "KelpOutline",
+      "Rock",
+      "BlackOutline",
+      "SmallCoralMaterial",
+      "SmallCoralOutline",
+      "UrchinBlack",
+      "OrangeCoral",
+      "Black",
+    ],
+  },
+  { geometry: "Plane010", materials: ["Kelp", "KelpOutline"] },
+  { geometry: "Plane015", materials: ["Kelp", "KelpOutline"] },
+  { geometry: "Plane019", materials: ["Kelp", "KelpOutline"] },
+  {
+    geometry: "Plane051",
+    materials: [
+      "SmallCoralMaterial",
+      "SandOutline",
+      "BigRock",
+      "PurpleOutline",
+      "Kelp",
+      "KelpOutline",
+      "KelpOrange",
+      "KelpOrangeOutline",
+      "SmallCoralOutline",
+      "OrangeCoral",
+      "Black",
+      "UrchinBlack",
+      "YellowSandOutline",
+      "TallCoralOutline",
+    ],
+  },
+  {
+    geometry: "Plane061",
+    materials: [
+      "SmallCoralMaterial",
+      "SandOutline",
+      "BigRock",
+      "PurpleOutline",
+      "Kelp",
+      "KelpOutline",
+      "SmallCoralOutline",
+      "Black",
+      "DarkCoralMaterial",
+      "YellowSandOutline",
+      "KelpOrangeOutline",
+      "UrchinBlack",
+    ],
+  },
+  {
+    geometry: "Cube009",
+    materials: [
+      "BigRock",
+      "PurpleOutline",
+      "RedCoral",
+      "Black",
+      "Kelp",
+      "KelpOutline",
+      "SmallCoralMaterial",
+      "SmallCoralOutline",
+      "KelpOrange",
+      "KelpOrangeOutline",
+      "SandOutline",
+      "YellowSandOutline",
+      "UrchinBlack",
+    ],
+  },
   {
     geometry: "Cylinder004",
-    material: "TallCoralMaterial",
-    outline: "TallCoralOutline",
-    isTall: true,
+    materials: ["TallCoralMaterial", "TallCoralOutline"],
   },
   {
     geometry: "Cylinder005",
-    material: "TallCoralMaterial",
-    outline: "TallCoralOutline",
-    isTall: true,
+    materials: ["TallCoralMaterial", "TallCoralOutline"],
   },
   {
     geometry: "Cylinder006",
-    material: "TallCoralMaterial",
-    outline: "TallCoralOutline",
-    isTall: true,
+    materials: ["TallCoralMaterial", "TallCoralOutline"],
   },
   {
     geometry: "Cylinder007",
-    material: "TallCoralMaterial",
-    outline: "TallCoralOutline",
-    isTall: true,
+    materials: ["TallCoralMaterial", "TallCoralOutline"],
   },
   {
     geometry: "Cylinder008",
-    material: "TallCoralMaterial",
-    outline: "TallCoralOutline",
-    isTall: true,
+    materials: ["TallCoralMaterial", "TallCoralOutline"],
   },
   {
     geometry: "Cylinder010",
-    material: "SmallCoralMaterial",
-    outline: "SmallCoralOutline",
-    isTall: false,
+    materials: ["SmallCoralMaterial", "SmallCoralOutline"],
   },
   {
     geometry: "Cylinder011",
-    material: "SmallCoralMaterial",
-    outline: "SmallCoralOutline",
-    isTall: false,
+    materials: ["SmallCoralMaterial", "SmallCoralOutline"],
   },
 ];
 
-const WEIGHTED_CORAL_TYPES = [
-  ...Array(1).fill(CORAL_TYPES[0]), // Tall Coral 1
-  ...Array(1).fill(CORAL_TYPES[1]), // Tall Coral 2
-  ...Array(1).fill(CORAL_TYPES[2]), // Tall Coral 3
-  ...Array(1).fill(CORAL_TYPES[3]), // Tall Coral 4
-  ...Array(1).fill(CORAL_TYPES[4]), // Tall Coral 5
-  ...Array(4).fill(CORAL_TYPES[5]), // Small Coral 1 (more frequent)
-  ...Array(4).fill(CORAL_TYPES[6]), // Small Coral 2 (more frequent)
-];
-
 const RADIUS = 300;
-const CORAL_COUNT = 150; // Adjust as needed
+const OBJECT_COUNT = 50; // Adjust as needed
 
 function getRandomPosition(existingPositions, radius) {
   let position;
@@ -77,38 +167,44 @@ function getRandomPosition(existingPositions, radius) {
   return position;
 }
 
-export default function CoralSpawner(props) {
-  const { nodes, materials } = useGLTF("/corals.glb");
+export default function EnvironmentSpawner(props) {
+  const { nodes, materials } = useGLTF("/environment_grouped.glb");
   const positions = [];
 
-  for (let i = 0; i < CORAL_COUNT; i++) {
+  for (let i = 0; i < OBJECT_COUNT; i++) {
     positions.push(getRandomPosition(positions, RADIUS));
   }
 
   return (
     <group {...props} dispose={null}>
       {positions.map((position, index) => {
-        const coralType =
-          WEIGHTED_CORAL_TYPES[
-            Math.floor(Math.random() * WEIGHTED_CORAL_TYPES.length)
-          ];
+        const objectType =
+          OBJECT_TYPES[Math.floor(Math.random() * OBJECT_TYPES.length)];
+        const scale = Math.random() * 0.5 + 0.5; // Random scale between 0.5 and 1.0
+        const rotation = new THREE.Euler(0, Math.random() * Math.PI * 2, 0); // Random rotation
         return (
-          <RigidBody key={index} type="fixed" position={position.toArray()}>
-            <group scale={0.6} position-y={-1}>
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes[coralType.geometry].geometry}
-                material={materials[coralType.material]}
-              />
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes[`${coralType.geometry}_1`].geometry}
-                material={materials[coralType.outline]}
-              />
+          <RigidBody
+            key={index}
+            // colliders="hull"
+            colliders="trimesh"
+            type="fixed"
+            position={[position.x, position.y - 1, position.z]}
+            rotation={rotation}
+          >
+            <group scale={scale}>
+              {objectType.materials.map((material, i) => (
+                <mesh
+                  key={i}
+                  castShadow
+                  receiveShadow
+                  geometry={
+                    nodes[`${objectType.geometry}_${i}`]?.geometry ||
+                    nodes[objectType.geometry].geometry
+                  }
+                  material={materials[material]}
+                />
+              ))}
             </group>
-            {coralType.isTall && <CapsuleCollider args={[0.3, 0.6]} />}
           </RigidBody>
         );
       })}
@@ -116,4 +212,4 @@ export default function CoralSpawner(props) {
   );
 }
 
-useGLTF.preload("/corals.glb");
+useGLTF.preload("/environment_grouped.glb");
