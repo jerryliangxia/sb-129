@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid"; // Import UUID library
 function Enemies() {
   const [enemyMesh, setEnemyMesh] = useState<React.ReactElement[]>([]);
   const enemyRef = useRef<mesh>();
-  const setGameStage = useGame((state) => state.setGameStage);
+  const [pressKTimes, setPressKTimes] = useState(0);
   const curHealth = useGame((state) => state.curHealth);
 
   // Function to create enemies
@@ -29,6 +29,17 @@ function Enemies() {
       if (event.key === "k" || event.key === "K") {
         setEnemyMesh([]); // Clear existing enemies
         createEnemies(); // Create new enemies
+        setPressKTimes((prevPressKTimes) => {
+          if (prevPressKTimes === 1) {
+            const imgElement = document.querySelector(
+              "img.pressk"
+            ) as HTMLImageElement;
+            if (imgElement) {
+              imgElement.style.visibility = "hidden";
+            }
+          }
+          return prevPressKTimes + 1;
+        });
       }
     };
 
@@ -37,7 +48,7 @@ function Enemies() {
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []); // Removed dependencies to avoid re-adding the event listener unnecessarily
+  }, []);
 
   useEffect(() => {
     if (curHealth > 10) {

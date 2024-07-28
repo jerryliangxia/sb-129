@@ -104,6 +104,20 @@ export default function Overlay() {
           )}
         </Flex>
       )}
+      {!isTouchScreen && (
+        <img
+          className="pressk"
+          src="./pressk.png"
+          alt="extra"
+          style={{
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            width: "auto",
+            height: "20px",
+          }}
+        />
+      )}
     </>
   );
 }
