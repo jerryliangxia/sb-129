@@ -42,7 +42,8 @@ export default function ShotCube() {
   };
 
   useEffect(() => {
-    if (curAnimation === "C_Shoot") throwBall();
+    if (curAnimation === "C_Shoot" || curAnimation === "C_Shoot_Mobile")
+      throwBall();
   }, [curAnimation]);
 
   return (

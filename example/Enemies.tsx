@@ -8,13 +8,14 @@ function Enemies() {
   const enemyRef = useRef<mesh>();
   const [pressKTimes, setPressKTimes] = useState(0);
   const curHealth = useGame((state) => state.curHealth);
+  const SPAWN_RANGE = 50;
 
   // Function to create enemies
   const createEnemies = () => {
     const newEnemies: React.ReactElement[] = [];
-    for (let i = 0; i < 3; i++) {
-      const randomX = Math.random() * 20 - 10;
-      const randomZ = Math.random() * 20 - 10;
+    for (let i = 0; i < 5; i++) {
+      const randomX = Math.random() * SPAWN_RANGE - SPAWN_RANGE / 2;
+      const randomZ = Math.random() * SPAWN_RANGE - SPAWN_RANGE / 2;
       const enemyPosition = [randomX, 0.9, randomZ]; // Adjust Y as needed
       const id = uuidv4(); // Generate a unique ID for each enemy
 

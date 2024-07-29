@@ -16,6 +16,7 @@ import CharacterModel from "./CharacterModel";
 import React from "react";
 import Enemies from "./Enemies";
 import Corals from "./Corals";
+import { useGame } from "../src/stores/useGame";
 
 export default function Experience() {
   /**
@@ -28,6 +29,7 @@ export default function Experience() {
 
   const physics = false;
   const disableFollowCam = false;
+  const isTouchScreen = useGame((state) => state.isTouchScreen);
 
   /**
    * Keyboard control preset
@@ -66,6 +68,7 @@ export default function Experience() {
             // autoBalanceSpringOnY={0.7}
             // autoBalanceDampingOnY={0.05}
             disableFollowCam={disableFollowCam}
+            position-y={isTouchScreen ? 100 : 10}
           >
             {/* Replace your model here */}
             <CharacterModel />

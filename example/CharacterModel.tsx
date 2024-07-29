@@ -675,7 +675,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
       {/* Character model */}
       {/* Used as a spring for the speed of rotation */}
-      <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} />
+      {/* <CapsuleCollider args={[0.4, 0.35]} position={[0, 0.0, 0]} /> */}
       <group
         ref={group}
         {...props}

@@ -173,9 +173,7 @@ export default function EnemyEntity({ position, ...props }) {
           type === "headbutt" ||
           type === "kick"
         ) {
-          if (type === "shotCube") {
-            (event.collider as any)._parent.userData.type = null;
-          } else if (isBeingHit || isDying) {
+          if (isBeingHit || isDying) {
             return;
           }
           setNumHits(numHits - 1);
