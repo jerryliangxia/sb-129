@@ -168,7 +168,7 @@ export default function EnemyEntity({ position, ...props }) {
         if (verifyLinvel(body)) body.current.applyImpulse(impulse);
         const type = (event.collider as any)._parent?.userData.type;
         if (
-          type === "shotCube" ||
+          type === "ball" ||
           type === "clarinet" ||
           type === "headbutt" ||
           type === "kick"

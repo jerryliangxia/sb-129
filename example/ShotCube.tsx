@@ -1,13 +1,11 @@
 import * as THREE from "three";
-import { useThree, useFrame } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
-import React, { useRef, useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useGame } from "../src/stores/useGame";
+import { Html } from "@react-three/drei";
 
 export default function ShotCube() {
-  const { camera } = useThree();
-  const [cubeMesh, setCubeMesh] = useState([]);
-  const cubeRef = useRef<RapierRigidBody>();
+  const [rigidBody, setRigidBody] = useState<RapierRigidBody | null>(null);
 
   // const position = useMemo(() => new THREE.Vector3(), []);
   const directionCamera = useMemo(() => new THREE.Vector3(), []);
@@ -15,67 +13,50 @@ export default function ShotCube() {
   const position = useGame((state) => state.curPosition);
   const direction = useGame((state) => state.curDirection);
 
-  const clickToCreateBox = () => {
-    if (document.pointerLockElement) {
-      // camera.parent?.getWorldPosition(position);
-      const referenceDirection = new THREE.Vector3(0, 0, 1);
-      const angle = direction.angleTo(referenceDirection);
-      const rotationAxis = new THREE.Vector3()
-        .crossVectors(referenceDirection, direction)
-        .normalize();
-      const quaternion = new THREE.Quaternion().setFromAxisAngle(
-        rotationAxis,
-        angle
+  const throwBall = () => {
+    if (rigidBody) {
+      // Calculate the spawn position in front of the player
+      const spawnOffset = new THREE.Vector3(
+        direction.x * 0.5,
+        1.0, // 0.5 units higher in the y-axis
+        direction.z * 0.5
       );
-      let offset = new THREE.Vector3(-0.1, 0, 0.1);
-      offset.applyQuaternion(quaternion);
-      const newPosition = position.clone().add(offset);
-      const newMesh = (
-        <mesh
-          position={[newPosition.x, newPosition.y + 0.9, newPosition.z]}
-          // castShadow
-          // receiveShadow
-        >
-          <sphereGeometry args={[0.1, 4, 4]} />
-          <meshStandardMaterial color="gray" />
-        </mesh>
+      const adjustedPosition = new THREE.Vector3().addVectors(
+        position,
+        spawnOffset
       );
-      setCubeMesh((prevMeshes) => [...prevMeshes, newMesh]);
-    }
-  };
 
-  useEffect(() => {
-    camera.parent?.getWorldDirection(directionCamera);
-    if (cubeMesh.length > 0) {
-      cubeRef.current?.setLinvel(
+      // Set the ball's position
+      rigidBody.setTranslation(adjustedPosition, false);
+
+      // Set the ball's velocity
+      rigidBody.setLinvel(
         new THREE.Vector3(
-          direction.x * 40,
-          directionCamera.y * 40 + 4,
-          direction.z * 40
+          direction.x * 30,
+          directionCamera.y * 30 + 4,
+          direction.z * 30
         ),
         false
       );
     }
-  }, [cubeMesh]);
+  };
 
   useEffect(() => {
-    if (curAnimation === "C_Shoot") clickToCreateBox();
+    if (curAnimation === "C_Shoot") throwBall();
   }, [curAnimation]);
 
   return (
     <>
-      {cubeMesh.map((item, i) => {
-        return (
-          <RigidBody
-            key={i}
-            mass={0.6}
-            ref={cubeRef}
-            userData={{ type: "shotCube" }}
-          >
-            {item}
-          </RigidBody>
-        );
-      })}
+      <RigidBody
+        ref={(ref) => ref && setRigidBody(ref)}
+        userData={{ type: "ball" }}
+      >
+        <mesh>
+          <sphereGeometry args={[0.1, 4, 4]} />
+          <meshStandardMaterial color="gray" opacity={0.0} transparent />
+        </mesh>
+        <Html distanceFactor={20}>♪</Html>
+      </RigidBody>
     </>
   );
 }
