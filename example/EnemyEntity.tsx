@@ -242,3 +242,5 @@ export default function EnemyEntity({ position, ...props }) {
     </RigidBody>
   );
 }
+
+useGLTF.preload("/sb_onemesh.glb");
