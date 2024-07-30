@@ -6,6 +6,7 @@ export const StyledButton = (props: any) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const isTouchScreen = useGame((state) => state.isTouchScreen);
+  const curHealth = useGame((state) => state.curHealth);
 
   return (
     <button
@@ -40,11 +41,19 @@ export const StyledButton = (props: any) => {
       }}
       onClick={props.onClick}
     >
-      <img
-        src="/playtext.png"
-        alt="Play Text"
-        style={{ maxWidth: "50%", height: "auto" }} // Ensure the image takes up 60% of the width max
-      />
+      {curHealth > 0 ? (
+        <img
+          src="/playtext.png"
+          alt="Play Text"
+          style={{ maxWidth: "50%", height: "auto" }} // Ensure the image takes up 60% of the width max
+        />
+      ) : (
+        <img
+          src="/restarttext.png"
+          alt="Restart Text"
+          style={{ maxWidth: "90%", height: "auto" }}
+        />
+      )}
       <div
         style={{
           position: "absolute",
