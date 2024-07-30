@@ -213,7 +213,6 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   useEffect(() => {
     if (curHealth > 10) {
-      console.log("health > 10");
       // Stop any death animations and reset character state
       const fallAction = actions[animationSet.action5];
       fallAction?.stop();
