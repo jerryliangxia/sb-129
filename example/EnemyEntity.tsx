@@ -68,8 +68,6 @@ export default function EnemyEntity({ position, ...props }) {
   // Extract animation actions
   const { ref, actions, names } = useAnimations(animations);
   const getCharacterPosition = useGame((state) => state.getCurPosition);
-  const numDeaths = useGame((state) => state.numDeaths);
-  const setNumDeaths = useGame((state) => state.setNumDeaths);
 
   // Hover and animation-index states
   const [index, setIndex] = useState(1);
@@ -99,8 +97,6 @@ export default function EnemyEntity({ position, ...props }) {
               visible: true,
               play: true,
             }));
-            setNumDeaths(numDeaths + 1);
-            console.log("died");
           }
         }, 1000);
       } else {
