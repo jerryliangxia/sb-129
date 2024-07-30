@@ -51,6 +51,7 @@ export default function ShotCube() {
       <RigidBody
         ref={(ref) => ref && setRigidBody(ref)}
         userData={{ type: "ball" }}
+        position={[0, -10, 0]}
       >
         <mesh>
           <sphereGeometry args={[0.1, 4, 4]} />

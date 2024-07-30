@@ -204,9 +204,15 @@ export default function EnemyEntity({ position, ...props }) {
               <skinnedMesh
                 name="Cube003_1"
                 geometry={nodes.Cube003_1.geometry}
-                material={materials.Outline}
+                // material={materials.Outline}
                 skeleton={nodes.Cube003_1.skeleton}
-              />
+              >
+                <meshStandardMaterial
+                  color="black"
+                  roughness={1.0}
+                  metalness={0.0}
+                />
+              </skinnedMesh>
             </group>
             <primitive object={nodes.Main} />
             <primitive object={nodes.ShoulderL} />
@@ -236,3 +242,5 @@ export default function EnemyEntity({ position, ...props }) {
     </RigidBody>
   );
 }
+
+useGLTF.preload("/sb_onemesh.glb");
