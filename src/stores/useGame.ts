@@ -21,15 +21,6 @@ export const useGame = /* @__PURE__ */ create(
         set(() => ({ isFullScreen: isFullScreen }));
       },
 
-      // Game Stages
-      gameStage: 0 as number,
-      setGameStage: (stage: number) => {
-        set(() => ({ gameStage: stage }));
-      },
-      getGameStage: () => {
-        return get().gameStage;
-      },
-
       /**
        * Point to move point
        */
@@ -312,9 +303,6 @@ type State = {
   setOverlayVisible: (visible: boolean) => void;
   isFullScreen: boolean;
   setIsFullScreen: (isFullScreen: boolean) => void;
-  gameStage: number;
-  setGameStage: (stage: number) => void;
-  getGameStage: () => number;
   moveToPoint: THREE.Vector3;
   isCameraBased: boolean;
   curAnimation: string;

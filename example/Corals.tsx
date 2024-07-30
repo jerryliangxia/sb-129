@@ -1,6 +1,5 @@
 import React from "react";
 import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
 import {
   Rock,
   Rock001,
@@ -11,7 +10,6 @@ import {
   TallCoral,
   SmallCoral,
 } from "./MeshComponents";
-import { useGLTF } from "@react-three/drei";
 
 const RADIUS = 300;
 const OBJECT_COUNT = 150;
@@ -43,7 +41,7 @@ export default function EnvironmentSpawner() {
   const positions = [];
 
   for (let i = 0; i < OBJECT_COUNT; i++) {
-    positions.push(getRandomPosition(positions, RADIUS));
+    positions.push(getRandomPosition(positions, RADIUS, RESTRICTED_RANGE));
   }
 
   // Weighted array for components
@@ -87,5 +85,3 @@ export default function EnvironmentSpawner() {
     </>
   );
 }
-
-useGLTF.preload("/environment_colliders.glb");

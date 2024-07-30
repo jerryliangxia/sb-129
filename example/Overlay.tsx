@@ -10,8 +10,6 @@ export default function Overlay() {
   const setOverlayVisible = useGame((state) => state.setOverlayVisible);
   const isFullScreen = useGame((state) => state.isFullScreen);
   const setIsFullScreen = useGame((state) => state.setIsFullScreen);
-  const gameStage = useGame((state) => state.gameStage);
-  const setGameStage = useGame((state) => state.setGameStage);
   const curHealth = useGame((state) => state.curHealth);
   const setCurHealth = useGame((state) => state.setCurHealth);
   const setCurAnimation = useGame((state) => state.setCurAnimation);
@@ -26,7 +24,6 @@ export default function Overlay() {
       setCurHealth(11); // Reset to 11 to trigger useEffect in CharacterModel
       setCurAnimation("IdleClarinet");
     }
-    setGameStage(gameStage + 1);
     setOverlayVisible(!overlayVisible);
     const canvas = document.querySelector("canvas");
     const event = new MouseEvent("click", {
