@@ -389,66 +389,61 @@ export default function CharacterModel(props: CharacterModelProps) {
     const cube1 = group.current.getObjectByName("Cube_1") as THREE.Mesh;
     if (!cube || !cube1) return;
 
-    // Create keyframe tracks for the morph targets
+    // Check the indices of the morph targets
+    const mouthOpenIndex = cube.morphTargetDictionary["MouthOpen"];
+    const basisIndex = cube.morphTargetDictionary["Closed"];
+
+    console.log("MouthOpen index:", mouthOpenIndex);
+    console.log("Basis index:", basisIndex);
+
+    // Create keyframe tracks for the "MouthOpen" and "Basis" morph targets
     const times = [0, 0.1, 0.5]; // Keyframe times
     const valuesMouthOpen = [0, 1, 0]; // Values for MouthOpen
-    const valuesClosed = [1, 0, 1]; // Values for Closed
-
-    const closedTrack = new THREE.NumberKeyframeTrack(
-      ".morphTargetInfluences[0]", // Assuming Closed is at index 0
-      times,
-      valuesClosed
-    );
+    const valuesBasis = [1, 0, 1]; // Values for Basis
 
     const mouthOpenTrack = new THREE.NumberKeyframeTrack(
-      ".morphTargetInfluences[1]", // Assuming MouthOpen is at index 1
+      `.morphTargetInfluences[${mouthOpenIndex}]`, // Use the correct index
       times,
       valuesMouthOpen
     );
 
+    const basisTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${basisIndex}]`, // Use the correct index
+      times,
+      valuesBasis
+    );
+
     // Create animation clips
-    const openMouthClip = new THREE.AnimationClip("Open Mouth", 1, [
-      closedTrack,
+    const mouthOpenClip = new THREE.AnimationClip("MouthOpen", 1, [
       mouthOpenTrack,
+      basisTrack,
     ]);
 
-    // // Create animation mixers and actions
-    // const cubeMixer = new THREE.AnimationMixer(cube);
-    // const cube1Mixer = new THREE.AnimationMixer(cube1);
-    // cubeActionRef.current = cubeMixer.clipAction(mouthOpenClip);
-    // cube1ActionRef.current = cube1Mixer.clipAction(mouthOpenClip);
-
-    // Create an animation mixer and play the clip
+    // Create animation mixers and actions
     mixerCube.current = new THREE.AnimationMixer(cube);
-    cubeActionRef.current = mixerCube.current.clipAction(openMouthClip);
-    cubeActionRef.current.setLoop(THREE.LoopOnce, 1);
-
     mixerCube1.current = new THREE.AnimationMixer(cube1);
-    cube1ActionRef.current = mixerCube1.current.clipAction(openMouthClip);
-    cube1ActionRef.current.setLoop(THREE.LoopOnce, 1);
+    cubeActionRef.current = mixerCube.current.clipAction(mouthOpenClip);
+    cube1ActionRef.current = mixerCube1.current.clipAction(mouthOpenClip);
 
-    // Function to start the mouth open animation
-    const startMouthOpenAnimation = () => {
-      if (cubeActionRef.current && cube1ActionRef.current) {
-        cubeActionRef.current.reset().play();
-        cube1ActionRef.current.reset().play();
+    const setMouthOpen = () => {
+      if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
+        console.log("Setting MouthOpen to 100%");
+        cube.morphTargetInfluences[mouthOpenIndex] = 1;
+        cube.morphTargetInfluences[basisIndex] = 0;
+        cube1.morphTargetInfluences[mouthOpenIndex] = 1;
+        cube1.morphTargetInfluences[basisIndex] = 0;
       }
     };
-
-    if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
-      cube.morphTargetInfluences[0] = 1;
-      cube.morphTargetInfluences[1] = 0;
-      cube1.morphTargetInfluences[0] = 1;
-      cube1.morphTargetInfluences[1] = 0;
-    }
 
     // Function to reset the morph target influences
     const resetMorphTargets = () => {
       if (cube?.morphTargetInfluences) {
-        cube.morphTargetInfluences[0] = 0;
+        cube.morphTargetInfluences[mouthOpenIndex] = 0;
+        cube.morphTargetInfluences[basisIndex] = 1;
       }
       if (cube1?.morphTargetInfluences) {
-        cube1.morphTargetInfluences[0] = 0;
+        cube1.morphTargetInfluences[mouthOpenIndex] = 0;
+        cube1.morphTargetInfluences[basisIndex] = 1;
       }
     };
 
@@ -457,10 +452,8 @@ export default function CharacterModel(props: CharacterModelProps) {
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3
     ) {
-      console.log("open");
-      startMouthOpenAnimation();
+      setMouthOpen();
     } else {
-      console.log("close");
       resetMorphTargets();
     }
 
@@ -469,70 +462,6 @@ export default function CharacterModel(props: CharacterModelProps) {
       mixerCube1.current?.stopAllAction();
     };
   }, [curAnimation]);
-
-  // useEffect(() => {
-  //   if (!group.current) return;
-
-  //   const cube = group.current.getObjectByName("Cube") as THREE.Mesh;
-  //   const cube1 = group.current.getObjectByName("Cube_1") as THREE.Mesh;
-  //   if (!cube || !cube1) return;
-
-  //   // Create keyframe tracks for the morph targets
-  //   const times = [0, 0.1, 0.5]; // Keyframe times
-  //   const valuesMouthOpen = [0, 1, 0]; // Values for MouthOpen
-  //   const valuesClosed = [1, 0, 1]; // Values for Closed
-
-  //   const closedTrack = new THREE.NumberKeyframeTrack(
-  //     ".morphTargetInfluences[0]", // Assuming Closed is at index 0
-  //     times,
-  //     valuesClosed
-  //   );
-
-  //   const mouthOpenTrack = new THREE.NumberKeyframeTrack(
-  //     ".morphTargetInfluences[1]", // Assuming MouthOpen is at index 1
-  //     times,
-  //     valuesMouthOpen
-  //   );
-
-  //   // Create an animation clip
-  //   const openMouthClip = new THREE.AnimationClip("Open Mouth", 1, [
-  //     closedTrack,
-  //     mouthOpenTrack,
-  //   ]);
-
-  //   // Create an animation mixer and play the clip
-  //   mixerCube.current = new THREE.AnimationMixer(cube);
-  //   cubeActionRef.current = mixerCube.current.clipAction(openMouthClip);
-  //   cubeActionRef.current.setLoop(THREE.LoopOnce, 1);
-
-  //   mixerCube1.current = new THREE.AnimationMixer(cube1);
-  //   cube1ActionRef.current = mixerCube1.current.clipAction(openMouthClip);
-  //   cube1ActionRef.current.setLoop(THREE.LoopOnce, 1);
-
-  //   // Function to start the mouth open animation
-  //   const startMouthOpenAnimation = () => {
-  //     if (cubeActionRef.current && cube1ActionRef.current) {
-  //       cubeActionRef.current.reset().play();
-  //       cube1ActionRef.current.reset().play();
-  //     }
-  //   };
-
-  //   // Initial state: Closed = 1, MouthOpen = 0
-  //   if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
-  //     cube.morphTargetInfluences[0] = 1;
-  //     cube.morphTargetInfluences[1] = 0;
-  //     cube1.morphTargetInfluences[0] = 1;
-  //     cube1.morphTargetInfluences[1] = 0;
-  //   }
-  //   // Start the mouth open animation after 5 seconds
-  //   const mouthOpenInterval = setInterval(() => {
-  //     startMouthOpenAnimation();
-  //   }, 5000);
-
-  //   return () => {
-  //     clearInterval(mouthOpenInterval);
-  //   };
-  // }, []);
 
   const mixer = useRef<THREE.AnimationMixer | null>(null);
   const blinkActionRef = useRef<THREE.AnimationAction | null>(null);
