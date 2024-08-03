@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { Text } from "@radix-ui/themes";
 import { useGame } from "../../src/stores/useGame";
 
 export const StyledButton = (props: any) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
-  const isTouchScreen = useGame((state) => state.isTouchScreen);
   const curHealth = useGame((state) => state.curHealth);
 
   return (

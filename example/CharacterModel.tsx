@@ -19,7 +19,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squidward_clarinet_mods_applied.glb"
+    "/squidward_clarinet_mouth_anim.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -377,6 +377,163 @@ export default function CharacterModel(props: CharacterModelProps) {
     });
   });
 
+  const mixerCube = useRef<THREE.AnimationMixer | null>(null);
+  const cubeActionRef = useRef<THREE.AnimationAction | null>(null);
+  const mixerCube1 = useRef<THREE.AnimationMixer | null>(null);
+  const cube1ActionRef = useRef<THREE.AnimationAction | null>(null);
+
+  useEffect(() => {
+    if (!group.current) return;
+
+    const cube = group.current.getObjectByName("Cube") as THREE.Mesh;
+    const cube1 = group.current.getObjectByName("Cube_1") as THREE.Mesh;
+    if (!cube || !cube1) return;
+
+    // Create keyframe tracks for the morph targets
+    const times = [0, 0.1, 0.5]; // Keyframe times
+    const valuesMouthOpen = [0, 1, 0]; // Values for MouthOpen
+    const valuesClosed = [1, 0, 1]; // Values for Closed
+
+    const closedTrack = new THREE.NumberKeyframeTrack(
+      ".morphTargetInfluences[0]", // Assuming Closed is at index 0
+      times,
+      valuesClosed
+    );
+
+    const mouthOpenTrack = new THREE.NumberKeyframeTrack(
+      ".morphTargetInfluences[1]", // Assuming MouthOpen is at index 1
+      times,
+      valuesMouthOpen
+    );
+
+    // Create animation clips
+    const openMouthClip = new THREE.AnimationClip("Open Mouth", 1, [
+      closedTrack,
+      mouthOpenTrack,
+    ]);
+
+    // // Create animation mixers and actions
+    // const cubeMixer = new THREE.AnimationMixer(cube);
+    // const cube1Mixer = new THREE.AnimationMixer(cube1);
+    // cubeActionRef.current = cubeMixer.clipAction(mouthOpenClip);
+    // cube1ActionRef.current = cube1Mixer.clipAction(mouthOpenClip);
+
+    // Create an animation mixer and play the clip
+    mixerCube.current = new THREE.AnimationMixer(cube);
+    cubeActionRef.current = mixerCube.current.clipAction(openMouthClip);
+    cubeActionRef.current.setLoop(THREE.LoopOnce, 1);
+
+    mixerCube1.current = new THREE.AnimationMixer(cube1);
+    cube1ActionRef.current = mixerCube1.current.clipAction(openMouthClip);
+    cube1ActionRef.current.setLoop(THREE.LoopOnce, 1);
+
+    // Function to start the mouth open animation
+    const startMouthOpenAnimation = () => {
+      if (cubeActionRef.current && cube1ActionRef.current) {
+        cubeActionRef.current.reset().play();
+        cube1ActionRef.current.reset().play();
+      }
+    };
+
+    if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
+      cube.morphTargetInfluences[0] = 1;
+      cube.morphTargetInfluences[1] = 0;
+      cube1.morphTargetInfluences[0] = 1;
+      cube1.morphTargetInfluences[1] = 0;
+    }
+
+    // Function to reset the morph target influences
+    const resetMorphTargets = () => {
+      if (cube?.morphTargetInfluences) {
+        cube.morphTargetInfluences[0] = 0;
+      }
+      if (cube1?.morphTargetInfluences) {
+        cube1.morphTargetInfluences[0] = 0;
+      }
+    };
+
+    // Watch for changes in curAnimation
+    if (
+      curAnimation === animationSet.action2 ||
+      curAnimation === animationSet.action3
+    ) {
+      console.log("open");
+      startMouthOpenAnimation();
+    } else {
+      console.log("close");
+      resetMorphTargets();
+    }
+
+    return () => {
+      mixerCube.current?.stopAllAction();
+      mixerCube1.current?.stopAllAction();
+    };
+  }, [curAnimation]);
+
+  // useEffect(() => {
+  //   if (!group.current) return;
+
+  //   const cube = group.current.getObjectByName("Cube") as THREE.Mesh;
+  //   const cube1 = group.current.getObjectByName("Cube_1") as THREE.Mesh;
+  //   if (!cube || !cube1) return;
+
+  //   // Create keyframe tracks for the morph targets
+  //   const times = [0, 0.1, 0.5]; // Keyframe times
+  //   const valuesMouthOpen = [0, 1, 0]; // Values for MouthOpen
+  //   const valuesClosed = [1, 0, 1]; // Values for Closed
+
+  //   const closedTrack = new THREE.NumberKeyframeTrack(
+  //     ".morphTargetInfluences[0]", // Assuming Closed is at index 0
+  //     times,
+  //     valuesClosed
+  //   );
+
+  //   const mouthOpenTrack = new THREE.NumberKeyframeTrack(
+  //     ".morphTargetInfluences[1]", // Assuming MouthOpen is at index 1
+  //     times,
+  //     valuesMouthOpen
+  //   );
+
+  //   // Create an animation clip
+  //   const openMouthClip = new THREE.AnimationClip("Open Mouth", 1, [
+  //     closedTrack,
+  //     mouthOpenTrack,
+  //   ]);
+
+  //   // Create an animation mixer and play the clip
+  //   mixerCube.current = new THREE.AnimationMixer(cube);
+  //   cubeActionRef.current = mixerCube.current.clipAction(openMouthClip);
+  //   cubeActionRef.current.setLoop(THREE.LoopOnce, 1);
+
+  //   mixerCube1.current = new THREE.AnimationMixer(cube1);
+  //   cube1ActionRef.current = mixerCube1.current.clipAction(openMouthClip);
+  //   cube1ActionRef.current.setLoop(THREE.LoopOnce, 1);
+
+  //   // Function to start the mouth open animation
+  //   const startMouthOpenAnimation = () => {
+  //     if (cubeActionRef.current && cube1ActionRef.current) {
+  //       cubeActionRef.current.reset().play();
+  //       cube1ActionRef.current.reset().play();
+  //     }
+  //   };
+
+  //   // Initial state: Closed = 1, MouthOpen = 0
+  //   if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
+  //     cube.morphTargetInfluences[0] = 1;
+  //     cube.morphTargetInfluences[1] = 0;
+  //     cube1.morphTargetInfluences[0] = 1;
+  //     cube1.morphTargetInfluences[1] = 0;
+  //   }
+  //   // Start the mouth open animation after 5 seconds
+  //   const mouthOpenInterval = setInterval(() => {
+  //     startMouthOpenAnimation();
+  //   }, 5000);
+
+  //   return () => {
+  //     clearInterval(mouthOpenInterval);
+  //   };
+  // }, []);
+
   const mixer = useRef<THREE.AnimationMixer | null>(null);
   const blinkActionRef = useRef<THREE.AnimationAction | null>(null);
 
@@ -691,12 +848,16 @@ export default function CharacterModel(props: CharacterModelProps) {
                 geometry={nodes.Cube.geometry}
                 material={materials.BaseColor}
                 skeleton={nodes.Cube.skeleton}
+                morphTargetDictionary={nodes.Cube.morphTargetDictionary}
+                morphTargetInfluences={nodes.Cube.morphTargetInfluences}
               />
               <skinnedMesh
                 name="Cube_1"
                 geometry={nodes.Cube_1.geometry}
                 // material={materials.Outline}
                 skeleton={nodes.Cube_1.skeleton}
+                morphTargetDictionary={nodes.Cube_1.morphTargetDictionary}
+                morphTargetInfluences={nodes.Cube_1.morphTargetInfluences}
               >
                 <meshStandardMaterial
                   color="black"
@@ -791,4 +952,4 @@ export default function CharacterModel(props: CharacterModelProps) {
 export type CharacterModelProps = JSX.IntrinsicElements["group"];
 
 // Change the character src to yours
-useGLTF.preload("/squidward_clarinet_mods_applied.glb");
+useGLTF.preload("/squidward_clarinet_mouth_anim.glb");
