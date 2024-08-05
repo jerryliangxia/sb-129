@@ -425,13 +425,11 @@ export default function CharacterModel(props: CharacterModelProps) {
     cubeActionRef.current = mixerCube.current.clipAction(mouthOpenClip);
     cube1ActionRef.current = mixerCube1.current.clipAction(mouthOpenClip);
 
-    const setMouthOpen = () => {
-      if (cube?.morphTargetInfluences && cube1?.morphTargetInfluences) {
-        console.log("Setting MouthOpen to 100%");
-        cube.morphTargetInfluences[mouthOpenIndex] = 1;
-        cube.morphTargetInfluences[basisIndex] = 0;
-        cube1.morphTargetInfluences[mouthOpenIndex] = 1;
-        cube1.morphTargetInfluences[basisIndex] = 0;
+    const startMouthOpenAnimation = () => {
+      if (cubeActionRef.current && cube1ActionRef.current) {
+        console.log("Starting mouth open animation");
+        cubeActionRef.current.play();
+        cube1ActionRef.current.reset().play();
       }
     };
 
@@ -452,7 +450,7 @@ export default function CharacterModel(props: CharacterModelProps) {
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3
     ) {
-      setMouthOpen();
+      startMouthOpenAnimation();
     } else {
       resetMorphTargets();
     }
@@ -525,6 +523,12 @@ export default function CharacterModel(props: CharacterModelProps) {
   useFrame((state, delta) => {
     if (mixer.current) {
       mixer.current.update(delta);
+    }
+    if (mixerCube.current) {
+      mixerCube.current.update(delta);
+    }
+    if (mixerCube1.current) {
+      mixerCube1.current.update(delta);
     }
   });
 
