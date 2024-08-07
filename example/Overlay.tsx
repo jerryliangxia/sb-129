@@ -90,9 +90,7 @@ export default function Overlay() {
           <StyledButton
             onClick={() => handleClick()}
             style={{ height: "auto" }}
-          >
-            {curHealth > 0 ? "Play" : "Restart"}
-          </StyledButton>
+          />
           {!isTouchScreen && (
             <StyledSwitch
               checked={isFullScreen}

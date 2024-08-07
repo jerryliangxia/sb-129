@@ -19,7 +19,7 @@ export default function CharacterModel(props: CharacterModelProps) {
   // Change the character src to yours
   const group = useRef<THREE.Group>(null);
   const { nodes, animations, materials } = useGLTF(
-    "/squidward_clarinet_mods_applied.glb"
+    "/squidward_clarinet_mouth_anim.glb"
   ) as GLTF & {
     nodes: any;
     materials: { [name: string]: THREE.Material };
@@ -377,8 +377,90 @@ export default function CharacterModel(props: CharacterModelProps) {
     });
   });
 
-  const mixer = useRef<THREE.AnimationMixer | null>(null);
+  const eyeBagsMixer = useRef<THREE.AnimationMixer | null>(null);
   const blinkActionRef = useRef<THREE.AnimationAction | null>(null);
+  const openEyesActionRef = useRef<THREE.AnimationAction | null>(null);
+
+  const cubeMixer = useRef<THREE.AnimationMixer | null>(null);
+  const cubeActionRef = useRef<THREE.AnimationAction | null>(null);
+  const cubeMixer1 = useRef<THREE.AnimationMixer | null>(null);
+  const cube1ActionRef = useRef<THREE.AnimationAction | null>(null);
+
+  useEffect(() => {
+    if (!group.current) return;
+
+    const cube = group.current.getObjectByName("Cube") as THREE.Mesh;
+    const cube1 = group.current.getObjectByName("Cube_1") as THREE.Mesh;
+    if (!cube || !cube1) return;
+
+    // Check the indices of the morph targets
+    const mouthOpenIndex = cube.morphTargetDictionary["MouthOpen"];
+    const basisIndex = cube.morphTargetDictionary["Closed"];
+
+    // Create keyframe tracks for the "MouthOpen" and "Basis" morph targets
+    const times = [0, 0.1, 0.5]; // Keyframe times
+    const valuesMouthOpen = [0, 1, 0]; // Values for MouthOpen
+    const valuesBasis = [1, 0, 1]; // Values for Basis
+
+    const mouthOpenTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${mouthOpenIndex}]`, // Use the correct index
+      times,
+      valuesMouthOpen
+    );
+
+    const basisTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${basisIndex}]`, // Use the correct index
+      times,
+      valuesBasis
+    );
+
+    // Create animation clips
+    const mouthOpenClip = new THREE.AnimationClip("MouthOpen", 1, [
+      mouthOpenTrack,
+      basisTrack,
+    ]);
+
+    // Create animation mixers and actions
+    cubeMixer.current = new THREE.AnimationMixer(cube);
+    cubeMixer1.current = new THREE.AnimationMixer(cube1);
+    cubeActionRef.current = cubeMixer.current.clipAction(mouthOpenClip);
+    cube1ActionRef.current = cubeMixer1.current.clipAction(mouthOpenClip);
+
+    const startMouthOpenAnimation = () => {
+      if (cubeActionRef.current && cube1ActionRef.current) {
+        cubeActionRef.current.play();
+        cube1ActionRef.current.reset().play();
+      }
+    };
+
+    // Function to reset the morph target influences
+    const resetMorphTargets = () => {
+      if (cube?.morphTargetInfluences) {
+        cube.morphTargetInfluences[mouthOpenIndex] = 0;
+        cube.morphTargetInfluences[basisIndex] = 1;
+      }
+      if (cube1?.morphTargetInfluences) {
+        cube1.morphTargetInfluences[mouthOpenIndex] = 0;
+        cube1.morphTargetInfluences[basisIndex] = 1;
+      }
+    };
+
+    // Watch for changes in curAnimation
+    if (
+      curAnimation === animationSet.action2 ||
+      curAnimation === animationSet.action3 ||
+      curAnimation === animationSet.action4
+    ) {
+      startMouthOpenAnimation();
+    } else {
+      resetMorphTargets();
+    }
+
+    return () => {
+      cubeMixer.current?.stopAllAction();
+      cubeMixer1.current?.stopAllAction();
+    };
+  }, [curAnimation]);
 
   useEffect(() => {
     if (!group.current) return;
@@ -386,38 +468,73 @@ export default function CharacterModel(props: CharacterModelProps) {
     const eyeBags = group.current.getObjectByName("EyeBags") as THREE.Mesh;
     if (!eyeBags) return;
 
-    // Create keyframe tracks for the morph targets
-    const times = [0, 0.1, 0.5]; // Keyframe times
-    const valuesUpEyeClose = [1, 0, 1]; // Values for UpEyeClose
-    const valuesClosed = [0, 1, 0]; // Values for Closed
+    // Create keyframe tracks for the blink animation
+    const blinkTimes = [0, 0.1, 0.5]; // Keyframe times
+    const blinkValuesUpEyeClose = [1, 0, 1]; // Values for UpEyeClose
+    const blinkValuesClosed = [0, 1, 0]; // Values for Closed
 
-    const upEyeCloseTrack = new THREE.NumberKeyframeTrack(
-      ".morphTargetInfluences[0]", // Assuming UpEyeClose is at index 0
-      times,
-      valuesUpEyeClose
+    const upEyeCloseIndex = eyeBags.morphTargetDictionary["UpEyeClose"];
+    const closedIndex = eyeBags.morphTargetDictionary["Closed"];
+
+    const blinkUpEyeCloseTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${upEyeCloseIndex}]`, // Assuming UpEyeClose is at index 0
+      blinkTimes,
+      blinkValuesUpEyeClose
     );
 
-    const closedTrack = new THREE.NumberKeyframeTrack(
-      ".morphTargetInfluences[1]", // Assuming Closed is at index 1
-      times,
-      valuesClosed
+    const blinkClosedTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${closedIndex}]`, // Assuming Closed is at index 1
+      blinkTimes,
+      blinkValuesClosed
     );
 
-    // Create an animation clip
+    // Create keyframe tracks for the open eyes animation
+    const openEyesTimes = [0, 0.1, 0.5]; // Keyframe times
+    const openEyesValues = [1, 0, 1]; // Values for UpEyeClose
+    const otherMorphTargetsValues = [0, 0, 0]; // Values for other morph targets
+
+    const openEyesTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${upEyeCloseIndex}]`, // Assuming UpEyeClose is at index 0
+      openEyesTimes,
+      openEyesValues
+    );
+
+    const otherMorphTargetsTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${closedIndex}]`, // Assuming other morph targets are at index 1
+      openEyesTimes,
+      otherMorphTargetsValues
+    );
+
+    // Create animation clips
     const blinkClip = new THREE.AnimationClip("Blink", 1, [
-      upEyeCloseTrack,
-      closedTrack,
+      blinkUpEyeCloseTrack,
+      blinkClosedTrack,
     ]);
 
-    // Create an animation mixer and play the clip
-    mixer.current = new THREE.AnimationMixer(eyeBags);
-    blinkActionRef.current = mixer.current.clipAction(blinkClip);
+    const openEyesClip = new THREE.AnimationClip("OpenEyes", 1, [
+      openEyesTrack,
+      otherMorphTargetsTrack,
+    ]);
+
+    // Create an animation mixer and actions
+    eyeBagsMixer.current = new THREE.AnimationMixer(eyeBags);
+    blinkActionRef.current = eyeBagsMixer.current.clipAction(blinkClip);
+    openEyesActionRef.current = eyeBagsMixer.current.clipAction(openEyesClip);
+
     blinkActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the blink animation once
+    openEyesActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the open eyes animation once
 
     // Function to start the blink animation
     const startBlinkAnimation = () => {
-      if (blinkActionRef.current) {
+      if (blinkActionRef.current && !openEyesActionRef.current?.isRunning()) {
         blinkActionRef.current.reset().play();
+      }
+    };
+
+    // Function to start the open eyes animation
+    const startOpenEyesAnimation = () => {
+      if (openEyesActionRef.current) {
+        openEyesActionRef.current.reset().play();
       }
     };
 
@@ -426,19 +543,40 @@ export default function CharacterModel(props: CharacterModelProps) {
       eyeBags.morphTargetInfluences[0] = 1;
       eyeBags.morphTargetInfluences[1] = 0;
     }
-    // Start the blink animation after 5 seconds
-    const blinkInterval = setInterval(() => {
-      startBlinkAnimation();
-    }, 5000);
+
+    // Start the blink animation every 5 seconds
+    let blinkInterval = setInterval(startBlinkAnimation, 5000);
+
+    // Watch for changes in curAnimation for hit, kick, headbutt actions
+    const handleAnimationChange = () => {
+      if (
+        curAnimation === animationSet.action2 ||
+        curAnimation === animationSet.action3 ||
+        curAnimation === animationSet.action4
+      ) {
+        startOpenEyesAnimation();
+        clearInterval(blinkInterval); // Clear the blink interval
+        blinkInterval = setInterval(startBlinkAnimation, 5000); // Reset the blink interval after open eyes animation
+      }
+    };
+
+    handleAnimationChange(); // Initial check
 
     return () => {
       clearInterval(blinkInterval);
+      eyeBagsMixer.current?.stopAllAction();
     };
-  }, []);
+  }, [curAnimation]);
 
   useFrame((state, delta) => {
-    if (mixer.current) {
-      mixer.current.update(delta);
+    if (cubeMixer.current) {
+      cubeMixer.current.update(delta);
+    }
+    if (cubeMixer1.current) {
+      cubeMixer1.current.update(delta);
+    }
+    if (eyeBagsMixer.current) {
+      eyeBagsMixer.current.update(delta);
     }
   });
 
@@ -691,12 +829,16 @@ export default function CharacterModel(props: CharacterModelProps) {
                 geometry={nodes.Cube.geometry}
                 material={materials.BaseColor}
                 skeleton={nodes.Cube.skeleton}
+                morphTargetDictionary={nodes.Cube.morphTargetDictionary}
+                morphTargetInfluences={nodes.Cube.morphTargetInfluences}
               />
               <skinnedMesh
                 name="Cube_1"
                 geometry={nodes.Cube_1.geometry}
                 // material={materials.Outline}
                 skeleton={nodes.Cube_1.skeleton}
+                morphTargetDictionary={nodes.Cube_1.morphTargetDictionary}
+                morphTargetInfluences={nodes.Cube_1.morphTargetInfluences}
               >
                 <meshStandardMaterial
                   color="black"
@@ -791,4 +933,4 @@ export default function CharacterModel(props: CharacterModelProps) {
 export type CharacterModelProps = JSX.IntrinsicElements["group"];
 
 // Change the character src to yours
-useGLTF.preload("/squidward_clarinet_mods_applied.glb");
+useGLTF.preload("/squidward_clarinet_mouth_anim.glb");
