@@ -6,12 +6,16 @@ import { TextureLoader } from "three";
 const Flower = ({
   position,
   color,
+  scale,
+  texture,
 }: {
   position: [number, number, number];
   color: string;
+  scale: number;
+  texture: string;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const texture = useLoader(TextureLoader, "flower.png");
+  const flowerTexture = useLoader(TextureLoader, texture);
 
   useEffect(() => {
     if (meshRef.current) {
@@ -25,15 +29,18 @@ const Flower = ({
         new THREE.Vector3(0, 0, -1),
         direction
       );
-      //   meshRef.current.setRotationFromQuaternion(quaternion);
       meshRef.current.rotation.setFromQuaternion(quaternion);
     }
   }, [color, position]);
 
   return (
     <mesh ref={meshRef} position={position}>
-      <planeGeometry args={[100, 100]} />
-      <meshBasicMaterial map={texture} transparent side={THREE.DoubleSide} />
+      <planeGeometry args={[100 * scale, 100 * scale]} />
+      <meshBasicMaterial
+        map={flowerTexture}
+        transparent
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 };
@@ -57,7 +64,7 @@ const Flowers = () => {
     const angle = Math.random() * 2 * Math.PI;
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
-    const y = 100 + Math.random() * 100; // Fixed y position
+    const y = 100 + Math.random() * 400;
     return [x, y, z];
   };
 
@@ -90,13 +97,15 @@ const Flowers = () => {
   };
 
   const flowerPositions = generateNonOverlappingPositions(11, 500, 100);
+  const flowerScales = flowerPositions.map(() => 0.5 + Math.random() * 0.5); // Random scale between 0.5 and 1
+  const flowerTextures = ["flower0.png", "flower1.png", "flower2.png"];
 
   const flowerColors = [
-    "#FF69B4", // HotPink
-    "#FFD700", // Gold
-    "#ADFF2F", // GreenYellow
-    "#00BFFF", // DeepSkyBlue
-    "#FF4500", // OrangeRed
+    "#9D4EA2", // Purple
+    "#E7EFD7", // White
+    "#2DE5CD", // Cyan
+    "#4ADD1D", // Bright Green
+    "#C3EA7F", // Yellow Green
   ];
 
   return (
@@ -106,6 +115,10 @@ const Flowers = () => {
           key={index}
           position={pos as [number, number, number]}
           color={flowerColors[index % flowerColors.length]}
+          scale={flowerScales[index]}
+          texture={
+            flowerTextures[Math.floor(Math.random() * flowerTextures.length)]
+          }
         />
       ))}
     </>
