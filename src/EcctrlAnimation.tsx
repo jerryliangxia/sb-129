@@ -36,7 +36,8 @@ export function EcctrlAnimation(props: EcctrlAnimationProps) {
       curAnimation === props.animationSet.action2 ||
       curAnimation === props.animationSet.action3 ||
       curAnimation === props.animationSet.action4 ||
-      curAnimation === props.animationSet.action7
+      curAnimation === props.animationSet.action7 ||
+      curAnimation === props.animationSet.action8
     ) {
       action
         .reset()

@@ -115,6 +115,7 @@ export default function CharacterModel(props: CharacterModelProps) {
     action5: "Fall",
     action6: "C_Death",
     action7: isTouchScreen ? "C_Shoot_Mobile" : "C_Shoot",
+    action8: "C_Hurt",
   };
 
   useFrame((state, delta) => {
@@ -449,7 +450,8 @@ export default function CharacterModel(props: CharacterModelProps) {
     if (
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
-      curAnimation === animationSet.action4
+      curAnimation === animationSet.action4 ||
+      curAnimation === animationSet.action8
     ) {
       startMouthOpenAnimation();
     } else {
@@ -552,7 +554,8 @@ export default function CharacterModel(props: CharacterModelProps) {
       if (
         curAnimation === animationSet.action2 ||
         curAnimation === animationSet.action3 ||
-        curAnimation === animationSet.action4
+        curAnimation === animationSet.action4 ||
+        curAnimation === animationSet.action8
       ) {
         startOpenEyesAnimation();
         clearInterval(blinkInterval); // Clear the blink interval
@@ -676,7 +679,8 @@ export default function CharacterModel(props: CharacterModelProps) {
       curAnimation === animationSet.action2 ||
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4 ||
-      (curAnimation === animationSet.action7 && isTouchScreen)
+      (curAnimation === animationSet.action7 && isTouchScreen) ||
+      curAnimation === animationSet.action8
     ) {
       if (action) {
         action.reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 0).play();

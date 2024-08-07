@@ -207,6 +207,9 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
     const action7Animation = !animated
       ? null
       : useGame((state) => state.action7);
+    const action8Animation = !animated
+      ? null
+      : useGame((state) => state.action8);
 
     /**
      * Debug settings
@@ -982,6 +985,16 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           }
         );
 
+        // Action 8 key subscribe for special animation
+        const unSubscribeAction8 = subscribeKeys(
+          (state) => state.action8,
+          (value) => {
+            if (value) {
+              animated && action8Animation();
+            }
+          }
+        );
+
         // Mouse click listener for action7
         const handleClick = (event: MouseEvent) => {
           // Check if the left mouse button was clicked
@@ -999,6 +1012,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
           unSubscribeAction3();
           unSubscribeAction4();
           unSubscribeAction7();
+          unSubscribeAction8();
           window.removeEventListener("click", handleClick);
         };
       });
@@ -1599,7 +1613,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(
             e.collider.parent().userData.type == "enemy"
           ) {
             if (curHealth > 0 && !overlayVisible) {
-              setCurAnimation(animationSet.action3);
+              setCurAnimation(animationSet.action8);
               const currentPosition = new THREE.Vector3(...getCurPosition());
               const enemyPosition = new THREE.Vector3(
                 e.rigidBodyObject.position.x,
