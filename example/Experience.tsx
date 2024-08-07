@@ -17,6 +17,7 @@ import React from "react";
 import Enemies from "./Enemies";
 import Corals from "./Corals";
 import { useGame } from "../src/stores/useGame";
+import Flowers from "./Flowers";
 
 export default function Experience() {
   /**
@@ -98,6 +99,9 @@ export default function Experience() {
 
         {/* Corals */}
         <Corals />
+
+        {/* Flowers */}
+        <Flowers />
 
         {/* Shoting cubes */}
         <ShotCube />
