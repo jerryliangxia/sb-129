@@ -96,9 +96,14 @@ const Flowers = () => {
     return positions;
   };
 
-  const flowerPositions = generateNonOverlappingPositions(11, 500, 100);
+  const flowerPositions = generateNonOverlappingPositions(20, 500, 100);
   const flowerScales = flowerPositions.map(() => 0.5 + Math.random() * 0.5); // Random scale between 0.5 and 1
-  const flowerTextures = ["flower0.png", "flower1.png", "flower2.png"];
+  const flowerTextures = [
+    "flower.png",
+    "flower1.png",
+    "flower2.png",
+    "flower3.png",
+  ];
 
   const flowerColors = [
     "#9D4EA2", // Purple

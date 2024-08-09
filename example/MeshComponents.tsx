@@ -459,9 +459,14 @@ export function TallCoral({ position, rotation }) {
   // Select a random coral
   const randomCoral =
     TALL_CORALS[Math.floor(Math.random() * TALL_CORALS.length)];
+  const adjustedPosition: [number, number, number] = [
+    position[0],
+    position[1] - 0.1,
+    position[2],
+  ];
 
   return (
-    <group position={position} rotation={rotation} name="TallCoral">
+    <group position={adjustedPosition} rotation={rotation} name="TallCoral">
       <RigidBody colliders="trimesh" type="fixed">
         <mesh geometry={nodes.ColliderTallCoral.geometry}>
           <meshPhongMaterial opacity={0} transparent />
