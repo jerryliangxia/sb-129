@@ -1,17 +1,9 @@
-import { Grid, KeyboardControls } from "@react-three/drei";
-import { Perf } from "r3f-perf";
+import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import Ecctrl from "../src/Ecctrl";
 import Floor from "./Floor";
 import Lights from "./Lights";
-import Steps from "./Steps";
-import Slopes from "./Slopes";
-import RoughPlane from "./RoughPlane";
-import RigidObjects from "./RigidObjects";
-import FloatingPlatform from "./FloatingPlatform";
-import DynamicPlatforms from "./DynamicPlatforms";
 import ShotCube from "./ShotCube";
-// import { useControls } from "leva";
 import CharacterModel from "./CharacterModel";
 import React from "react";
 import Enemies from "./Enemies";
@@ -19,6 +11,7 @@ import Corals from "./Corals";
 import { useGame } from "../src/stores/useGame";
 import Flowers from "./Flowers";
 import CaveEntity from "./CaveEntity";
+import { useFrame } from "@react-three/fiber";
 
 export default function Experience() {
   /**
@@ -70,7 +63,7 @@ export default function Experience() {
             // autoBalanceSpringOnY={0.7}
             // autoBalanceDampingOnY={0.05}
             disableFollowCam={disableFollowCam}
-            position-y={isTouchScreen ? 100 : 10}
+            position-y={isTouchScreen ? 20 : 10}
           >
             {/* Replace your model here */}
             <CharacterModel />
