@@ -114,7 +114,7 @@ export default function Experience() {
         <CaveEntity
           modelPath="cave_sponge_final"
           position={[-0.9, -0.7, 9.9]}
-          rotation={[0, (Math.PI * 2) / 3, 0]}
+          rotation={[0, -(Math.PI * 9) / 3, 0]}
         />
         <CaveEntity
           modelPath="cave_patrick_final"

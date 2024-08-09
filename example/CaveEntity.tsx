@@ -16,8 +16,14 @@ export default function CaveEntity({
   const [intervalTime, setIntervalTime] = useState(10000); // Interval time in milliseconds
 
   useEffect(() => {
-    const idleAction = actions["Idle"];
-    const danceAction = actions["Dance"];
+    const idleAction =
+      modelPath === "cave_sponge_final"
+        ? actions["StanceIdle"]
+        : actions["Idle"];
+    const danceAction =
+      modelPath === "cave_sponge_final"
+        ? actions["StanceDance"]
+        : actions["Dance"];
 
     if (idleAction && danceAction) {
       idleAction.play();
