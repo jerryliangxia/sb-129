@@ -18,6 +18,7 @@ import Enemies from "./Enemies";
 import Corals from "./Corals";
 import { useGame } from "../src/stores/useGame";
 import Flowers from "./Flowers";
+import CaveEntity from "./CaveEntity";
 
 export default function Experience() {
   /**
@@ -108,6 +109,18 @@ export default function Experience() {
 
         {/* Enemies */}
         <Enemies />
+
+        {/* Cave Entity */}
+        <CaveEntity
+          modelPath="cave_sponge_final"
+          position={[-0.9, -0.7, 9.9]}
+          rotation={[0, (Math.PI * 2) / 3, 0]}
+        />
+        <CaveEntity
+          modelPath="cave_patrick_final"
+          position={[0.6, -1.8, 10]}
+          rotation={[0, (Math.PI * 4) / 3, 0]}
+        />
       </Physics>
     </>
   );
