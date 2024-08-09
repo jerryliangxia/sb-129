@@ -11,9 +11,7 @@ export default function CaveEntity({
   rotation: [number, number, number];
 }) {
   const group = useRef();
-  const { nodes, materials, animations } = useGLTF(
-    `/spongegar/${modelPath}.glb`
-  );
+  const { nodes, materials, animations } = useGLTF(`/models/${modelPath}.glb`);
   const { actions } = useAnimations(animations, group);
   const [intervalTime, setIntervalTime] = useState(10000); // Interval time in milliseconds
 
