@@ -380,6 +380,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
   const eyeBagsMixer = useRef<THREE.AnimationMixer | null>(null);
   const blinkActionRef = useRef<THREE.AnimationAction | null>(null);
+  const eyeCloseActionRef = useRef<THREE.AnimationAction | null>(null);
   const openEyesActionRef = useRef<THREE.AnimationAction | null>(null);
 
   const cubeMixer = useRef<THREE.AnimationMixer | null>(null);
@@ -490,6 +491,9 @@ export default function CharacterModel(props: CharacterModelProps) {
       blinkValuesClosed
     );
 
+    // Create keyframe tracks for the eye close animation
+    const eyeCloseTimes = [0, 0.5, 1];
+
     // Create keyframe tracks for the open eyes animation
     const openEyesTimes = [0, 0.1, 0.5]; // Keyframe times
     const openEyesValues = [1, 0, 1]; // Values for UpEyeClose
@@ -499,6 +503,12 @@ export default function CharacterModel(props: CharacterModelProps) {
       `.morphTargetInfluences[${upEyeCloseIndex}]`, // Assuming UpEyeClose is at index 0
       openEyesTimes,
       openEyesValues
+    );
+
+    const eyeCloseTrack = new THREE.NumberKeyframeTrack(
+      `.morphTargetInfluences[${closedIndex}]`, // Assuming UpEyeClose is at index 0
+      eyeCloseTimes,
+      blinkValuesClosed
     );
 
     const otherMorphTargetsTrack = new THREE.NumberKeyframeTrack(
@@ -513,7 +523,12 @@ export default function CharacterModel(props: CharacterModelProps) {
       blinkClosedTrack,
     ]);
 
-    const openEyesClip = new THREE.AnimationClip("OpenEyes", 1, [
+    const eyeCloseClip = new THREE.AnimationClip("EyeClose", 1, [
+      eyeCloseTrack,
+      otherMorphTargetsTrack,
+    ]);
+
+    const openEyesClip = new THREE.AnimationClip("OpenEyes", 1.1, [
       openEyesTrack,
       otherMorphTargetsTrack,
     ]);
@@ -521,15 +536,24 @@ export default function CharacterModel(props: CharacterModelProps) {
     // Create an animation mixer and actions
     eyeBagsMixer.current = new THREE.AnimationMixer(eyeBags);
     blinkActionRef.current = eyeBagsMixer.current.clipAction(blinkClip);
+    eyeCloseActionRef.current = eyeBagsMixer.current.clipAction(eyeCloseClip);
     openEyesActionRef.current = eyeBagsMixer.current.clipAction(openEyesClip);
 
     blinkActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the blink animation once
     openEyesActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the open eyes animation once
+    eyeCloseActionRef.current.setLoop(THREE.LoopOnce, 1); // Play the eye close animation once
 
     // Function to start the blink animation
     const startBlinkAnimation = () => {
       if (blinkActionRef.current && !openEyesActionRef.current?.isRunning()) {
         blinkActionRef.current.reset().play();
+      }
+    };
+
+    // Function to start the eye close animation
+    const startEyeCloseAnimation = () => {
+      if (eyeCloseActionRef.current) {
+        eyeCloseActionRef.current.reset().play();
       }
     };
 
@@ -558,6 +582,10 @@ export default function CharacterModel(props: CharacterModelProps) {
         curAnimation === animationSet.action8
       ) {
         startOpenEyesAnimation();
+        clearInterval(blinkInterval); // Clear the blink interval
+        blinkInterval = setInterval(startBlinkAnimation, 5000); // Reset the blink interval after open eyes animation
+      } else if (curAnimation === animationSet.action7) {
+        startEyeCloseAnimation();
         clearInterval(blinkInterval); // Clear the blink interval
         blinkInterval = setInterval(startBlinkAnimation, 5000); // Reset the blink interval after open eyes animation
       }
